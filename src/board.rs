@@ -4,11 +4,12 @@ use crate::errors::BoardError;
 use crate::errors::BoardError::InvalidArgument;
 use Direction::{North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest};
 
+
 const BOARD_SIZE: usize = 8;
 
 
 #[derive(Copy, Clone, PartialEq, Debug)]
-enum Direction {
+pub enum Direction {
     North,
     NorthEast,
     East,
@@ -17,6 +18,14 @@ enum Direction {
     SouthWest,
     West,
     NorthWest,
+}
+
+impl Direction {
+    
+    /// Returns the iterator for all possible directions
+    pub fn all() -> impl Iterator<Item=Direction> {
+       vec![North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest].into_iter()
+    }
 }
 
 
@@ -35,6 +44,17 @@ impl Display for Disk {
     }
 }
 
+impl Disk {
+    
+    /// Returns the opposite disk of this disk
+    pub(crate) fn opponent(&self) -> Self {
+        match *self {
+            Dark => Light,
+            Light => Dark,
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct Position {
     row: usize,
@@ -42,6 +62,8 @@ pub struct Position {
 }
 
 impl Position {
+    
+    /// Creates a new Position
     fn new(row: usize, col: usize) -> Self {
         Self {
             row,
@@ -49,8 +71,43 @@ impl Position {
         }
     }
     
+    /// Checks if this position is in bound
     fn is_inbound(&self) -> bool {
         self.row < BOARD_SIZE && self.col < BOARD_SIZE
+    }
+    
+    /// Returns the direction towards the target
+    /// Pre-conditions:
+    /// * self != target
+    pub fn direction(&self, target: &Position) -> Direction {
+        assert_ne!(self, target);
+        
+        let row_diff = target.row as i32 - self.row as i32;
+        let hor_diff = target.col as i32 - self.col as i32;
+        
+        if row_diff < 0 {
+            if hor_diff < 0 {
+                NorthWest
+            } else if hor_diff == 0 {
+                North
+            } else {
+                NorthEast
+            }
+        } else if row_diff == 0 {
+            if hor_diff < 0 {
+                West
+            } else {
+                East
+            }
+        } else {
+            if hor_diff < 0 {
+                SouthWest
+            } else if hor_diff == 0 {
+                South
+            } else {
+                SouthEast
+            } 
+        }
     }
 }
 
@@ -111,7 +168,31 @@ impl Board {
         self.grid[pos.row][pos.col]
     }
     
+    /// Places the disk at the given position
+    /// Pre-conditions:
+    /// * Given position isn't occupied by a disk
+    pub fn place(&mut self, disk: Disk, pos: &Position) -> Result<(), BoardError> {
+        if self.disk_at(pos).is_some() {
+            return Err(InvalidArgument(
+                format!("Given position is not empty to place a disk: {}", pos)));
+        }
+        
+        self.grid[pos.row][pos.col] = Some(disk);
+        Ok(())
+    }
+    
+    /// Returns all positions of the given player
+    pub(crate) fn positions(&self, player: Disk) -> impl Iterator<Item=Position> {
+        self.grid.into_iter()
+            .flatten()
+            .enumerate()
+            .filter(move |(_, disk)| disk.is_some() && disk.unwrap() == player)
+            .map(|(i, _)| Position::new(i / BOARD_SIZE, i % BOARD_SIZE))
+    }
+    
     /// Flips the disk at the given position
+    /// Pre-conditions:
+    /// * The given position must be occupied by a disk
     pub fn flip_at(&mut self, pos: &Position) -> Result<(), BoardError> {
         match self.disk_at(pos) {
             None => Err(InvalidArgument(format!("Board is empty at {}", pos))),
@@ -122,7 +203,7 @@ impl Board {
         }
     }
     
-    /// Returns the iterator of empty positions
+    /// Returns all empty positions
     fn empty_positions(&self) -> impl Iterator<Item=Position> {
         self.grid.into_iter()
             .flatten()
@@ -132,7 +213,7 @@ impl Board {
     }
     
     /// Returns the neighbours of the given position
-    fn neighbours(&self, pos: &Position) -> impl Iterator<Item=Position> {
+    pub(crate) fn neighbours(&self, pos: &Position) -> impl Iterator<Item=Position> {
         let mut neighbours = Vec::with_capacity(9);
         
         let range: [i32; 3] = [-1, 0, 1];
@@ -150,7 +231,7 @@ impl Board {
     }
     
     /// Returns the neighbour from the given position at the given direction
-    fn neighbour(&self, pos: &Position, dir: Direction) -> Option<Position> {
+    pub fn neighbour(&self, pos: &Position, dir: Direction) -> Option<Position> {
         let offset = match dir {
             North => (-1, 0),
             NorthEast => (-1, 1),
@@ -167,11 +248,16 @@ impl Board {
         
         if neighbour.is_inbound() {Some(neighbour)} else {None}
     }
+    
+    /// Clears this board
+    pub fn clear(&mut self) {
+        self.grid = [[None; BOARD_SIZE]; BOARD_SIZE];
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::board::{Board, BOARD_SIZE, Direction, Position};
+    use crate::board::{Board, BOARD_SIZE, Direction, Disk, Position};
     use crate::board::Direction::{East, North, NorthEast, NorthWest, South, SouthEast, SouthWest, West};
     use crate::board::Disk::{Dark, Light};
 
@@ -259,7 +345,7 @@ mod tests {
         let get_result = |pos: &Position| -> Vec<String> {
             board.neighbours(&pos)
                 .map(|pos| pos.to_string())
-                .collect::<Vec<String>>()
+                .collect()
         };
         
         let pos = Position::new(0, 0);
@@ -324,5 +410,28 @@ mod tests {
         assert_eq!(get_result(&pos, SouthEast), None);
         assert_eq!(get_result(&pos, South), None);
         assert_eq!(get_result(&pos, SouthWest), None);
+    }
+    
+    #[test]
+    fn positions() {
+        let mut board = Board::new();
+        board.clear();
+
+        board.grid[0][0] = Some(Dark);
+        board.grid[1][1] = Some(Dark);
+        board.grid[2][2] = Some(Light);
+
+        let get_result = |player: Disk| -> Vec<String> {
+            board.positions(player)
+                .map(|pos| pos.to_string())
+                .collect::<Vec<String>>()
+        };
+        
+        assert_eq!(get_result(Dark), vec!["A1", "B2"]);
+    }
+    
+    #[test]
+    fn direction() {
+        assert!(false);
     }
 }
