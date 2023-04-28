@@ -193,8 +193,11 @@ impl Board {
     
     /// Flips the disk at the given position
     /// Pre-conditions:
+    /// * pos.is_inbound()
     /// * The given position must be occupied by a disk
     pub fn flip_at(&mut self, pos: &Position) -> Result<(), BoardError> {
+        assert!(pos.is_inbound());
+
         match self.disk_at(pos) {
             None => Err(InvalidArgument(format!("Board is empty at {}", pos))),
             Some(disk) => { 
@@ -407,6 +410,30 @@ mod tests {
     
     #[test]
     fn direction() {
-        assert!(false);
+        let center = Position::new(BOARD_SIZE / 2, BOARD_SIZE / 2);
+        
+        let target = Position::new(center.row - 2, center.col - 2);
+        assert_eq!(center.direction(&target), NorthWest);
+        
+        let target = Position::new(center.row, center.col - 2);
+        assert_eq!(center.direction(&target), West);
+
+        let target = Position::new(center.row + 2, center.col - 2);
+        assert_eq!(center.direction(&target), SouthWest);
+
+        let target = Position::new(center.row + 2, center.col);
+        assert_eq!(center.direction(&target), South);
+
+        let target = Position::new(center.row + 2, center.col + 2);
+        assert_eq!(center.direction(&target), SouthEast);
+
+        let target = Position::new(center.row, center.col + 2);
+        assert_eq!(center.direction(&target), East);
+
+        let target = Position::new(center.row - 2, center.col + 2);
+        assert_eq!(center.direction(&target), NorthEast);
+
+        let target = Position::new(center.row - 2, center.col);
+        assert_eq!(center.direction(&target), North);
     }
 }
