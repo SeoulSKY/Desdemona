@@ -47,7 +47,7 @@ impl Display for Disk {
 impl Disk {
     
     /// Returns the opposite disk of this disk
-    pub(crate) fn opponent(&self) -> Self {
+    pub fn opponent(&self) -> Self {
         match *self {
             Dark => Light,
             Light => Dark,
