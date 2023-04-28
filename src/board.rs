@@ -5,8 +5,8 @@ use crate::errors::BoardError::InvalidArgument;
 use Direction::{North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest};
 
 
-const BOARD_SIZE: usize = 8;
-
+pub const BOARD_SIZE: usize = 8;
+const EMPTY_CHAR: char = 'E';
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Direction {
@@ -64,7 +64,7 @@ pub struct Position {
 impl Position {
     
     /// Creates a new Position
-    fn new(row: usize, col: usize) -> Self {
+    pub fn new(row: usize, col: usize) -> Self {
         Self {
             row,
             col,
@@ -120,6 +120,7 @@ impl Display for Position {
     }
 }
 
+#[derive(Clone)]
 pub struct Board {
     grid: [[Option<Disk>; BOARD_SIZE]; BOARD_SIZE],
 }
@@ -129,9 +130,9 @@ impl Display for Board {
         let mut buf = String::with_capacity(BOARD_SIZE * BOARD_SIZE + BOARD_SIZE);
         
         for row in self.grid.iter() {
-            for disk in row.iter() {
-                buf.push(match disk {
-                    None => 'E',
+            for cell in row.iter() {
+                buf.push(match cell {
+                    None => EMPTY_CHAR,
                     Some(disk) => disk.to_string().chars().nth(0).unwrap(),
                 })
             }
@@ -213,7 +214,11 @@ impl Board {
     }
     
     /// Returns the neighbours of the given position
-    pub(crate) fn neighbours(&self, pos: &Position) -> impl Iterator<Item=Position> {
+    /// Pre-conditions:
+    /// * pos.is_inbound()
+    pub fn neighbours(&self, pos: &Position) -> impl Iterator<Item=Position> {
+        assert!(pos.is_inbound());
+        
         let mut neighbours = Vec::with_capacity(9);
         
         let range: [i32; 3] = [-1, 0, 1];
@@ -231,7 +236,11 @@ impl Board {
     }
     
     /// Returns the neighbour from the given position at the given direction
+    /// Pre-conditions:
+    /// * pos.is_inbound()
     pub fn neighbour(&self, pos: &Position, dir: Direction) -> Option<Position> {
+        assert!(pos.is_inbound());
+        
         let offset = match dir {
             North => (-1, 0),
             NorthEast => (-1, 1),
