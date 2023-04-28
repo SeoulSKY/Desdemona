@@ -183,7 +183,7 @@ impl Board {
     }
     
     /// Returns all positions of the given player
-    pub(crate) fn positions(&self, player: Disk) -> impl Iterator<Item=Position> {
+    pub fn positions(&self, player: Disk) -> impl Iterator<Item=Position> {
         self.grid.into_iter()
             .flatten()
             .enumerate()
@@ -202,15 +202,6 @@ impl Board {
                 Ok(())
             }
         }
-    }
-    
-    /// Returns all empty positions
-    fn empty_positions(&self) -> impl Iterator<Item=Position> {
-        self.grid.into_iter()
-            .flatten()
-            .enumerate()
-            .filter(|(_, disk)| disk.to_owned().is_none())
-            .map(|(i, _)| Position::new(i / BOARD_SIZE, i % BOARD_SIZE))
     }
     
     /// Returns the neighbours of the given position
@@ -320,31 +311,6 @@ mod tests {
 
         assert!(board.flip_at(&pos).is_ok());
         assert_eq!(board.disk_at(&pos), Some(Dark));
-    }
-    
-    #[test]
-    fn empty_positions() {
-        let mut board = Board::new();
-        
-        for i in 0..BOARD_SIZE {
-            for j in 0..BOARD_SIZE {
-                board.grid[i][j] = Some(Dark);
-            }
-        }
-        
-        assert_eq!(board.empty_positions().count(), 0);
-        
-        board.grid[0][0] = None;
-        board.grid[0][7] = None;
-        board.grid[3][6] = None;
-        board.grid[6][3] = None;
-        board.grid[7][0] = None;
-        board.grid[7][7] = None;
-
-        assert_eq!(board.empty_positions()
-                       .map(|pos| pos.to_string())
-                       .collect::<Vec<String>>(),
-                   vec!["A1", "H1", "G4", "D7", "A8", "H8"]);
     }
     
     #[test]
