@@ -1,15 +1,48 @@
 use crate::board::{Board, Direction, Disk, Position};
-use crate::board::Disk::Dark;
+use crate::board::Disk::{Dark, Light};
+use crate::game::Player::{Bot, Human};
 
+const PLACEMENT_WEIGHT: i32 = 1;
+const MOBILITY_WEIGHT: i32 = 1;
+
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum Player {
+    #[default]
+    Bot,
+    Human,
+}
+
+impl Player {
+    
+    /// Returns the opponent of this player
+    pub fn opponent(&self) -> Self {
+        match *self {
+            Bot => Human,
+            Human => Bot,
+        }
+    }
+    
+    /// Returns the corresponding disk of this player
+    pub fn disk(&self) -> Disk {
+        match *self {
+            Bot => Dark,
+            Human => Light,
+        } 
+    }
+}
+
+
+#[derive(Default, PartialEq)]
 pub struct Action {
-    player: Disk,
+    player: Player,
     placement: Position,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Game {
     board: Board,
-    current_player: Disk,
+    current_player: Player,
+    winner: Option<Player>,
 }
 
 impl Game {
@@ -18,29 +51,37 @@ impl Game {
     pub fn new() -> Self {
         Self {
             board: Board::new(),
-            current_player: Dark,
+            current_player: Bot,
+            winner: None,
         }
     }
     
-    /// Returns the possible actions of the current player
-    pub fn actions(&self) -> impl Iterator<Item=Action> + '_ {
-        self.board.positions(self.current_player)
+    /// Returns the current player of this turn
+    pub fn current_player(&self) -> Player {
+        self.current_player
+    }
+    
+
+    /// Returns the possible actions of the given player
+    pub fn actions(&self, player: Player) -> impl Iterator<Item=Action> + '_ {
+        self.board.positions(player.disk())
             .flat_map(|pos| {
                 self.board.neighbours(&pos)
                     .map(move |neighbour| (pos.direction(&neighbour), neighbour))
             })
-            .filter(|(_, neighbour)| self.board.disk_at(neighbour) == 
-                Some(self.current_player.opponent()))
+            .filter(move |(_, neighbour)| self.board.disk(neighbour) ==
+                Some(player.opponent().disk()))
             .flat_map(|(dir, neighbour)| self.board.neighbour(&neighbour, dir))
-            .filter(|pos| self.board.disk_at(pos).is_none())
-            .map(|pos| Action{player: self.current_player, placement: pos})
+            .filter(|pos| self.board.disk(pos).is_none())
+            .map(move |pos| Action{player, placement: pos})
     }
+    
     
     /// Returns the new state with the action applied
     pub fn result(&self, action: &Action) -> Self {
         let mut game = self.clone();
 
-        game.board.place(action.player, &action.placement).unwrap();
+        game.board.place(action.player.disk(), &action.placement).unwrap();
         
         for dir in Direction::all() {
             let neighbour = game.board.neighbour(&action.placement, dir);
@@ -51,7 +92,7 @@ impl Game {
             let mut path = Vec::new();
             
             let mut walker = neighbour.unwrap();
-            while game.board.disk_at(&walker) == Some(action.player.opponent()) {
+            while game.board.disk(&walker) == Some(action.player.opponent().disk()) {
                 path.push(walker.clone());
 
                 let neighbour = game.board.neighbour(&walker, dir);
@@ -61,32 +102,85 @@ impl Game {
                 walker = neighbour.unwrap();
             }
             
-            if game.board.disk_at(&walker) == Some(action.player) {
+            if game.board.disk(&walker) == Some(action.player.disk()) {
                 for pos in path {
-                    game.board.flip_at(&pos).unwrap();
+                    game.board.flip(&pos).unwrap();
                 }
             }
         }
 
         game.current_player = action.player.opponent();
+        if self.is_over() {
+            let num_bot_disks = self.board.positions(Bot.disk()).count();
+            let num_human_disks = self.board.positions(Human.disk()).count();
+            
+            game.winner = if num_bot_disks > num_human_disks {
+                Some(Bot)
+            } else if num_human_disks > num_bot_disks {
+                Some(Human)
+            } else {
+                None
+            }
+        }
         game
+    }
+    
+    /// Checks if this game is over
+    pub fn is_over(&self) -> bool {
+        self.actions(Bot).next() == None && self.actions(Human).next() == None
+    }
+    
+    /// Returns the utility of this game
+    /// 
+    /// Pre-conditions:
+    /// * self.is_over()
+    pub fn utility(&self) -> i32 {
+        assert!(self.is_over());
+        
+        match self.winner {
+            Some(Bot) => i32::MAX,
+            Some(_) => i32::MIN,
+            None => 0,
+        }
+    }
+    
+    /// Evaluates this game state to a value
+    /// Pre-conditions:
+    /// * !self.is_over()
+    pub fn evaluate(&self) -> i32 {
+        assert!(!self.is_over());
+        
+        PLACEMENT_WEIGHT * (
+            self.board.positions(Bot.disk())
+                .map(|p| p.weight())
+                .sum::<i32>() -
+            self.board.positions(Human.disk())
+                .map(|p| p.weight())
+                .sum::<i32>()
+        ) + MOBILITY_WEIGHT * (
+            self.actions(Bot)
+                .count() -
+            self.actions(Human)
+                .count()
+        ) as i32
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use itertools::{Itertools, sorted};
+    use itertools::{Itertools};
     use crate::board::BOARD_SIZE;
     use crate::board::Disk::{Dark, Light};
     use crate::board::Position;
     use crate::game::{Action, Game};
+    use crate::game::Player::Bot;
 
     #[test]
     fn actions() {
         let game = Game::new();
         
         let get_result = || -> Vec<String> {
-            game.actions()
+            game.actions(Bot)
                 .map(|action| action.placement.to_string())
                 .collect()
         };
@@ -105,11 +199,11 @@ mod tests {
         for j in 1..BOARD_SIZE {
             game.board.place(Light, &Position::new(0, j)).unwrap()
         }
-        game.board.flip_at(&Position::new(0, BOARD_SIZE - 1)).unwrap();
+        game.board.flip(&Position::new(0, BOARD_SIZE - 1)).unwrap();
         
-        let mut game = game.result(&Action{player: Dark, placement: Position::new(0, 0)});
+        let mut game = game.result(&Action{player: Bot, placement: Position::new(0, 0)});
         for j in 0..BOARD_SIZE {
-            assert_eq!(game.board.disk_at(&Position::new(0, j)), Some(Dark))
+            assert_eq!(game.board.disk(&Position::new(0, j)), Some(Dark))
         }
         
         // -------------------------
@@ -119,11 +213,11 @@ mod tests {
         for i in 1..BOARD_SIZE {
             game.board.place(Light, &Position::new(i, i)).unwrap()
         }
-        game.board.flip_at(&Position::new(BOARD_SIZE - 1, BOARD_SIZE - 1)).unwrap();
+        game.board.flip(&Position::new(BOARD_SIZE - 1, BOARD_SIZE - 1)).unwrap();
 
-        let game = game.result(&Action{player: Dark, placement: Position::new(0, 0)});
+        let game = game.result(&Action{player: Bot, placement: Position::new(0, 0)});
         for i in 0..BOARD_SIZE {
-            assert_eq!(game.board.disk_at(&Position::new(i, i)), Some(Dark))
+            assert_eq!(game.board.disk(&Position::new(i, i)), Some(Dark))
         }
     }
 }

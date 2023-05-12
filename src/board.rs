@@ -6,7 +6,19 @@ use Direction::{North, NorthEast, East, SouthEast, South, SouthWest, West, North
 
 
 pub const BOARD_SIZE: usize = 8;
+
 const EMPTY_CHAR: char = 'E';
+
+const POSITION_WEIGHTS: [[i32; BOARD_SIZE]; BOARD_SIZE] = [
+    [ 30, -25, 10, 5, 5, 10, -25,  30],
+    [-25, -25,  1, 1, 1,  1, -25, -25],
+    [ 10,   1,  5, 2, 2,  5,   1,  10],
+    [  5,   1,  2, 1, 1,  2,   1,   5],
+    [  5,   1,  2, 1, 1,  2,   1,   5],
+    [ 10,   1,  5, 2, 2,  5,   1,  10],
+    [-25, -25,  1, 1, 1,  1, -25, -25],
+    [ 30, -25, 10, 5, 5, 10, -25,  30],
+];
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Direction {
@@ -29,8 +41,9 @@ impl Direction {
 }
 
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Hash)]
 pub enum Disk {
+    #[default]
     Dark,
     Light,
 }
@@ -46,8 +59,8 @@ impl Display for Disk {
 
 impl Disk {
     
-    /// Returns the opposite disk of this disk
-    pub fn opponent(&self) -> Self {
+    /// Returns the opposite disk
+    pub fn opposite(&self) -> Self {
         match *self {
             Dark => Light,
             Light => Dark,
@@ -59,6 +72,12 @@ impl Disk {
 pub struct Position {
     row: usize,
     col: usize,
+}
+
+impl Default for Position {
+    fn default() -> Self {
+        Self {row: 0, col: 0}
+    }
 }
 
 impl Position {
@@ -109,18 +128,23 @@ impl Position {
             } 
         }
     }
+    
+    /// Returns the weight of this position
+    pub fn weight(&self) -> i32 {
+        POSITION_WEIGHTS[self.row][self.col]
+    }
 }
 
 impl Display for Position {
     
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        static ALPHABETS: &str = "ABCDEFGH";
+        const ALPHABETS: [char; BOARD_SIZE] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
-        write!(f, "{}{}", ALPHABETS.chars().nth(self.col).unwrap(), self.row + 1)
+        write!(f, "{}{}", ALPHABETS[self.col], self.row + 1)
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Board {
     grid: [[Option<Disk>; BOARD_SIZE]; BOARD_SIZE],
 }
@@ -165,7 +189,7 @@ impl Board {
     }
     
     /// Returns the disk at the given position
-    pub fn disk_at(&self, pos: &Position) -> Option<Disk> {
+    pub fn disk(&self, pos: &Position) -> Option<Disk> {
         self.grid[pos.row][pos.col]
     }
     
@@ -173,7 +197,7 @@ impl Board {
     /// Pre-conditions:
     /// * Given position isn't occupied by a disk
     pub fn place(&mut self, disk: Disk, pos: &Position) -> Result<(), BoardError> {
-        if self.disk_at(pos).is_some() {
+        if self.disk(pos).is_some() {
             return Err(InvalidArgument(
                 format!("Given position is not empty to place a disk: {}", pos)));
         }
@@ -182,12 +206,12 @@ impl Board {
         Ok(())
     }
     
-    /// Returns all positions of the given player
-    pub fn positions(&self, player: Disk) -> impl Iterator<Item=Position> {
+    /// Returns all positions of the given disk
+    pub fn positions(&self, disk: Disk) -> impl Iterator<Item=Position> {
         self.grid.into_iter()
             .flatten()
             .enumerate()
-            .filter(move |(_, disk)| disk.is_some() && disk.unwrap() == player)
+            .filter(move |(_, d)| d.is_some() && d.unwrap() == disk)
             .map(|(i, _)| Position::new(i / BOARD_SIZE, i % BOARD_SIZE))
     }
     
@@ -195,13 +219,13 @@ impl Board {
     /// Pre-conditions:
     /// * pos.is_inbound()
     /// * The given position must be occupied by a disk
-    pub fn flip_at(&mut self, pos: &Position) -> Result<(), BoardError> {
+    pub fn flip(&mut self, pos: &Position) -> Result<(), BoardError> {
         assert!(pos.is_inbound());
 
-        match self.disk_at(pos) {
+        match self.disk(pos) {
             None => Err(InvalidArgument(format!("Board is empty at {}", pos))),
             Some(disk) => { 
-                self.grid[pos.row][pos.col] = Some(if disk == Dark {Light} else {Dark});
+                self.grid[pos.row][pos.col] = Some(if disk == Dark { Light } else { Dark });
                 Ok(())
             }
         }
@@ -291,29 +315,29 @@ mod tests {
     }
     
     #[test]
-    fn disk_at() { 
+    fn disk() { 
         let mut board = Board::new();
         
         let pos = Position::new(0, 0);
-        assert!(board.disk_at(&pos).is_none());
+        assert!(board.disk(&pos).is_none());
         
         board.grid[pos.row][pos.col] = Some(Dark);
-        assert_eq!(board.disk_at(&pos), Some(Dark));
+        assert_eq!(board.disk(&pos), Some(Dark));
     }
     
     #[test]
-    fn flip_at() {
+    fn flip() {
         let mut board = Board::new();
 
         let pos = Position::new(0, 0);
-        assert!(board.flip_at(&pos).is_err());
+        assert!(board.flip(&pos).is_err());
 
         board.grid[0][0] = Some(Dark);
-        assert!(board.flip_at(&pos).is_ok());
-        assert_eq!(board.disk_at(&pos), Some(Light));
+        assert!(board.flip(&pos).is_ok());
+        assert_eq!(board.disk(&pos), Some(Light));
 
-        assert!(board.flip_at(&pos).is_ok());
-        assert_eq!(board.disk_at(&pos), Some(Dark));
+        assert!(board.flip(&pos).is_ok());
+        assert_eq!(board.disk(&pos), Some(Dark));
     }
     
     #[test]
