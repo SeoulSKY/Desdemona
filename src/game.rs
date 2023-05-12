@@ -168,7 +168,8 @@ impl Game {
 
 #[cfg(test)]
 mod tests {
-    use itertools::{Itertools};
+    use itertools::Itertools;
+
     use crate::board::BOARD_SIZE;
     use crate::board::Disk::{Dark, Light};
     use crate::board::Position;

@@ -1,8 +1,8 @@
 use std::cmp::{max, min};
 use std::collections::HashMap;
+
 use crate::game::{Action, Game};
 use crate::game::Player;
-
 
 pub struct Bot {
     depth_limit: u32,

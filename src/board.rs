@@ -1,9 +1,10 @@
 use std::fmt::{Display, Formatter};
+
+use Direction::{East, North, NorthEast, NorthWest, South, SouthEast, SouthWest, West};
+
 use crate::board::Disk::{Dark, Light};
 use crate::errors::BoardError;
 use crate::errors::BoardError::InvalidArgument;
-use Direction::{North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest};
-
 
 pub const BOARD_SIZE: usize = 8;
 
