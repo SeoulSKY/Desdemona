@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use crate::board::{Board, Direction, Disk, Position};
 use crate::board::Disk::{Dark, Light};
 use crate::game::Player::{Bot, Human};
@@ -40,9 +41,9 @@ pub struct Action {
     placement: Position,
 }
 
-impl Serialize for Action {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
-        serializer.serialize_str(self.placement.to_string().as_str())
+impl Display for Action {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.placement)
     }
 }
 

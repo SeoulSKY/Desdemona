@@ -11,16 +11,14 @@ use crate::game::{Game, Player};
 
 #[get("/")]
 fn index() -> &'static str {
-    "Hello, world!"
+    "Hello World!"
 }
 
 #[get("/decide?<board>&<intelligence>")]
-fn decide(board: String, intelligence: u32) -> String {
+fn decide(board: String, intelligence: u32) -> String{
     let mut bot = Bot::new(intelligence);
-    let board = serde_json::from_str::<Board>(board.as_str()).unwrap();
-    
-    let action = bot.decide(Game::parse(board, Player::Bot));
-    serde_json::to_string(&action).unwrap()
+    let action = bot.decide(Game::parse(Board::parse(board).unwrap(), Player::Bot));
+    action.to_string()
 }
 
 #[rocket::main]

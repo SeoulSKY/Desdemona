@@ -1,7 +1,8 @@
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
-use serde::de::Visitor;
+use serde::de::{Unexpected, Visitor};
+use serde_json::Value;
 
 use Direction::{East, North, NorthEast, NorthWest, South, SouthEast, SouthWest, West};
 
@@ -61,37 +62,17 @@ impl Display for Disk {
     }
 }
 
-impl Serialize for Disk {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
-        serializer.serialize_str(self.to_string().as_str())
-    }
-}
-
-impl<'de> Deserialize<'de> for Disk {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
-        
-        struct EnumVisitor;
-        impl<'de> Visitor<'de> for EnumVisitor {
-            type Value = Disk;
-
-            fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
-                formatter.write_str("`D` or `L`")
-            }
-
-            fn visit_str<E>(self, value: &str) -> Result<Disk, E> where E: de::Error {
-                match value {
-                    "D" => Ok(Dark),
-                    "L" => Ok(Light),
-                    _ => Err(de::Error::unknown_field(value, &["D", "L"])),
-                }
-            }
-        }
-
-        deserializer.deserialize_identifier(EnumVisitor)
-    }
-}
-
 impl Disk {
+    
+    /// Parses the given character into a disk
+    pub fn parse(ch: char) -> Result<Self, BoardError> {
+        match ch {
+            'D' => Ok(Dark),
+            'L' => Ok(Light),
+            _ => Err(ParseError(format!("Invalid character to parse into a disk: {}", ch))),
+        }
+    }
+    
     /// Returns the opposite disk
     pub fn opposite(&self) -> Self {
         match *self {
@@ -201,48 +182,6 @@ impl Display for Board {
     }
 }
 
-impl Serialize for Board {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
-        serializer.serialize_str(self.to_string().as_str())
-    }
-}
-
-impl<'de> Deserialize<'de> for Board {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
-        struct ValueVisitor;
-        impl<'de> Visitor<'de> for ValueVisitor {
-            type Value = Board;
-
-            fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
-                formatter.write_str("`D` or `L`")
-            }
-
-            fn visit_str<E>(self, value: &str) -> Result<Board, E> where E: de::Error {
-                let mut board = Board::new();
-                for (i, line) in value.lines().enumerate() {
-                    for (j, ch) in line.chars().enumerate() {
-                        
-                        let disk = if ch == EMPTY_CHAR {
-                            None
-                        } else {
-                            let result = serde_json::from_str(ch.to_string().as_str());
-                            if result.is_err() {
-                                return Err(de::Error::unknown_field(value, &["D", "L"]));
-                            }
-                            Some(result.unwrap())
-                        };
-                        
-                        board.grid[i][j] = disk;
-                    }
-                }
-                Ok(board)
-            }
-        }
-        
-        deserializer.deserialize_identifier(ValueVisitor)
-    }
-}
-
 impl Board {
     
     /// Creates a new board
@@ -261,6 +200,23 @@ impl Board {
         board.grid[mid_pos.row + 1][mid_pos.col + 1] = Some(Dark);
 
         board
+    }
+    
+    /// Parses the given data to a board
+    pub fn parse(data: String) -> Result<Self, BoardError> {
+        let mut board = Board::new();
+        for (i, line) in data.lines().enumerate() {
+            for (j, ch) in line.chars().enumerate() {
+                let disk = if ch == EMPTY_CHAR {
+                    None
+                } else {
+                    Some(Disk::parse(ch)?)
+                };
+
+                board.grid[i][j] = disk;
+            }
+        }
+        Ok(board)
     }
     
     /// Returns the disk at the given position
