@@ -92,16 +92,6 @@ impl<'de> Deserialize<'de> for Disk {
 }
 
 impl Disk {
-    
-    /// Parses the given char into a disk
-    pub fn parse(ch: char) -> Result<Self, BoardError> {
-        match ch {
-            'D' => Ok(Dark),
-            'L' => Ok(Light),
-            _ => Err(ParseError(format!("Invalid char to parse into a disk: {}", ch))),
-        }
-    }
-    
     /// Returns the opposite disk
     pub fn opposite(&self) -> Self {
         match *self {
@@ -228,16 +218,14 @@ impl<'de> Deserialize<'de> for Board {
             }
 
             fn visit_str<E>(self, value: &str) -> Result<Board, E> where E: de::Error {
-                let mut chars = value.lines().map(|line| line.chars());
-                
                 let mut board = Board::new();
-                for (i, line) in chars.enumerate() {
-                    for (j, ch) in line.enumerate() {
+                for (i, line) in value.lines().enumerate() {
+                    for (j, ch) in line.chars().enumerate() {
                         
                         let disk = if ch == EMPTY_CHAR {
                             None
                         } else {
-                            let result = Disk::parse(ch);
+                            let result = serde_json::from_str(ch.to_string().as_str());
                             if result.is_err() {
                                 return Err(de::Error::unknown_field(value, &["D", "L"]));
                             }

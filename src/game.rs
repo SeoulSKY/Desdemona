@@ -70,8 +70,8 @@ impl Game {
         let mut game = Self {
             board,
             current_player,
-            winner: None;
-        }
+            winner: None,
+        };
         
         if game.is_over() {
             game.set_winner();
