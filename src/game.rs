@@ -1,11 +1,13 @@
 use crate::board::{Board, Direction, Disk, Position};
 use crate::board::Disk::{Dark, Light};
 use crate::game::Player::{Bot, Human};
+use serde::{Serialize, Deserialize, Serializer};
+use serde::ser::SerializeStruct;
 
 const PLACEMENT_WEIGHT: i32 = 1;
 const MOBILITY_WEIGHT: i32 = 1;
 
-#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize)]
 pub enum Player {
     #[default]
     Bot,
@@ -38,6 +40,12 @@ pub struct Action {
     placement: Position,
 }
 
+impl Serialize for Action {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+        serializer.serialize_str(self.placement.to_string().as_str())
+    }
+}
+
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Game {
     board: Board,
@@ -54,6 +62,22 @@ impl Game {
             current_player: Bot,
             winner: None,
         }
+    }
+    
+    
+    /// Parses the given data into a Game
+    pub fn parse(board: Board, current_player: Player) -> Self {
+        let mut game = Self {
+            board,
+            current_player,
+            winner: None;
+        }
+        
+        if game.is_over() {
+            game.set_winner();
+        }
+        
+        game
     }
     
     /// Returns the current player of this turn
@@ -111,18 +135,24 @@ impl Game {
 
         game.current_player = action.player.opponent();
         if self.is_over() {
-            let num_bot_disks = self.board.positions(Bot.disk()).count();
-            let num_human_disks = self.board.positions(Human.disk()).count();
-            
-            game.winner = if num_bot_disks > num_human_disks {
-                Some(Bot)
-            } else if num_human_disks > num_bot_disks {
-                Some(Human)
-            } else {
-                None
-            }
+            game.set_winner();
         }
         game
+    }
+    
+    fn set_winner(&mut self) {
+        assert!(self.is_over());
+
+        let num_bot_disks = self.board.positions(Bot.disk()).count();
+        let num_human_disks = self.board.positions(Human.disk()).count();
+
+        self.winner = if num_bot_disks > num_human_disks {
+            Some(Bot)
+        } else if num_human_disks > num_bot_disks {
+            Some(Human)
+        } else {
+            None
+        };
     }
     
     /// Checks if this game is over

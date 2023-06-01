@@ -589,6 +589,8 @@ version = "0.1.0"
 dependencies = [
  "itertools",
  "rocket",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

@@ -1,10 +1,13 @@
+use std::fmt;
 use std::fmt::{Display, Formatter};
+use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+use serde::de::Visitor;
 
 use Direction::{East, North, NorthEast, NorthWest, South, SouthEast, SouthWest, West};
 
 use crate::board::Disk::{Dark, Light};
 use crate::errors::BoardError;
-use crate::errors::BoardError::InvalidArgument;
+use crate::errors::BoardError::{InvalidArgument, ParseError};
 
 pub const BOARD_SIZE: usize = 8;
 
@@ -50,7 +53,7 @@ pub enum Disk {
 }
 
 impl Display for Disk {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Dark => write!(f, "D"),
             _ => write!(f, "L"),
@@ -58,7 +61,46 @@ impl Display for Disk {
     }
 }
 
+impl Serialize for Disk {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+        serializer.serialize_str(self.to_string().as_str())
+    }
+}
+
+impl<'de> Deserialize<'de> for Disk {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
+        
+        struct EnumVisitor;
+        impl<'de> Visitor<'de> for EnumVisitor {
+            type Value = Disk;
+
+            fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
+                formatter.write_str("`D` or `L`")
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<Disk, E> where E: de::Error {
+                match value {
+                    "D" => Ok(Dark),
+                    "L" => Ok(Light),
+                    _ => Err(de::Error::unknown_field(value, &["D", "L"])),
+                }
+            }
+        }
+
+        deserializer.deserialize_identifier(EnumVisitor)
+    }
+}
+
 impl Disk {
+    
+    /// Parses the given char into a disk
+    pub fn parse(ch: char) -> Result<Self, BoardError> {
+        match ch {
+            'D' => Ok(Dark),
+            'L' => Ok(Light),
+            _ => Err(ParseError(format!("Invalid char to parse into a disk: {}", ch))),
+        }
+    }
     
     /// Returns the opposite disk
     pub fn opposite(&self) -> Self {
@@ -138,7 +180,7 @@ impl Position {
 
 impl Display for Position {
     
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         const ALPHABETS: [char; BOARD_SIZE] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
         write!(f, "{}{}", ALPHABETS[self.col], self.row + 1)
@@ -151,7 +193,7 @@ pub struct Board {
 }
 
 impl Display for Board {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut buf = String::with_capacity(BOARD_SIZE * BOARD_SIZE + BOARD_SIZE);
         
         for row in self.grid.iter() {
@@ -165,7 +207,51 @@ impl Display for Board {
             buf.push('\n');
         }
         
-        write!(f, "{}", buf)
+        write!(f, "{}", buf.trim())
+    }
+}
+
+impl Serialize for Board {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+        serializer.serialize_str(self.to_string().as_str())
+    }
+}
+
+impl<'de> Deserialize<'de> for Board {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
+        struct ValueVisitor;
+        impl<'de> Visitor<'de> for ValueVisitor {
+            type Value = Board;
+
+            fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
+                formatter.write_str("`D` or `L`")
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<Board, E> where E: de::Error {
+                let mut chars = value.lines().map(|line| line.chars());
+                
+                let mut board = Board::new();
+                for (i, line) in chars.enumerate() {
+                    for (j, ch) in line.enumerate() {
+                        
+                        let disk = if ch == EMPTY_CHAR {
+                            None
+                        } else {
+                            let result = Disk::parse(ch);
+                            if result.is_err() {
+                                return Err(de::Error::unknown_field(value, &["D", "L"]));
+                            }
+                            Some(result.unwrap())
+                        };
+                        
+                        board.grid[i][j] = disk;
+                    }
+                }
+                Ok(board)
+            }
+        }
+        
+        deserializer.deserialize_identifier(ValueVisitor)
     }
 }
 
