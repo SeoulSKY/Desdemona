@@ -2,13 +2,12 @@ use std::fmt::{Display, Formatter};
 use crate::board::{Board, Direction, Disk, Position};
 use crate::board::Disk::{Dark, Light};
 use crate::game::Player::{Bot, Human};
-use serde::{Serialize, Deserialize, Serializer};
-use serde::ser::SerializeStruct;
+
 
 const PLACEMENT_WEIGHT: i32 = 1;
 const MOBILITY_WEIGHT: i32 = 1;
 
-#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum Player {
     #[default]
     Bot,

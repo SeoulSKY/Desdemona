@@ -55,7 +55,7 @@ impl Bot {
             return self.evaluate(game);
         }
 
-        let mut min_best_here = i32::MIN;
+        let mut min_best_here = i32::MAX;
 
         for act in game.actions(Player::Human) {
             let result = game.result(&act);
