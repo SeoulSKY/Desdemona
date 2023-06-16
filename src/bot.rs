@@ -33,6 +33,7 @@ impl Bot {
         
         let mut minimax_value = bot_best;
         let mut best_action= Action::default();
+        let mut decided = false;
         
         for act in game.actions(Player::Bot) {
             let result = game.result(&act);
@@ -40,10 +41,12 @@ impl Bot {
             if value > minimax_value {
                 minimax_value = value;
                 best_action = act;
+                decided = true;
             }
             bot_best = max(bot_best, minimax_value);
         }
         
+        assert!(decided);
         return best_action;
     }
     

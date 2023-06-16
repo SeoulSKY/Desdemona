@@ -15,7 +15,7 @@ fn index() -> &'static str {
 }
 
 #[get("/decide?<board>&<intelligence>")]
-fn decide(board: String, intelligence: u32) -> String{
+fn decide(board: String, intelligence: u32) -> String {
     let mut bot = Bot::new(intelligence);
     let action = bot.decide(Game::parse(Board::parse(board).unwrap(), Player::Bot));
     action.to_string()
