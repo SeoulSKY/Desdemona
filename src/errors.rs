@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub enum BoardError {
+pub enum Error {
     InvalidArgument(String),
     ParseError(String)
 }

@@ -1,5 +1,7 @@
 use std::cmp::{max, min};
 use std::collections::HashMap;
+use crate::errors::Error;
+use crate::errors::Error::InvalidArgument;
 
 use crate::game::{Action, Game};
 use crate::game::Player;
@@ -25,7 +27,7 @@ impl Bot {
     /// 
     /// Pre-conditions:
     /// * self.game.current_player() == Player::Bot
-    pub fn decide(&mut self, game: Game) -> Action {
+    pub fn decide(&mut self, game: Game) -> Result<(Action, Game), Error> {
         assert_eq!(self.game.current_player(), Player::Bot);
         
         let mut bot_best = i32::MIN;
@@ -33,21 +35,30 @@ impl Bot {
         
         let mut minimax_value = bot_best;
         let mut best_action= Action::default();
+        let mut best_result= Game::default();
         let mut decided = false;
+        let mut num_actions = 0;
         
         for act in game.actions(Player::Bot) {
+            num_actions += 1;
             let result = game.result(&act);
-            let value = self.min_value(result, bot_best, human_best, 1);
+            let value = self.min_value(result.clone(), bot_best, human_best, 1);
             if value > minimax_value {
                 minimax_value = value;
                 best_action = act;
+                best_result = result;
                 decided = true;
             }
             bot_best = max(bot_best, minimax_value);
         }
+
+        if num_actions == 0 {
+            return Err(InvalidArgument(format!("No actions are available from the given game.")));
+        }
         
         assert!(decided);
-        return best_action;
+        
+        Ok((best_action, best_result))
     }
     
     /// Finds the min value of the minimax

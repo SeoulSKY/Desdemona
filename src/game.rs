@@ -1,8 +1,12 @@
 use std::fmt::{Display, Formatter};
 use crate::board::{Board, Direction, Disk, Position};
 use crate::board::Disk::{Dark, Light};
+use crate::errors::Error;
+use crate::errors::Error::InvalidArgument;
 use crate::game::Player::{Bot, Human};
 
+pub const BOT_CHAR: char = 'B';
+pub const HUMAN_CHAR: char = 'H';
 
 const PLACEMENT_WEIGHT: i32 = 1;
 const MOBILITY_WEIGHT: i32 = 1;
@@ -15,6 +19,15 @@ pub enum Player {
 }
 
 impl Player {
+    
+    /// Parses the given character to Player
+    pub fn parse(ch: char) -> Result<Self, Error> {
+        match ch {
+            BOT_CHAR => Ok(Bot),
+            HUMAN_CHAR => Ok(Human),
+            _ => Err(InvalidArgument(format!("Failed to parse: {}", ch))),
+        }
+    }
     
     /// Returns the opponent of this player
     pub fn opponent(&self) -> Self {
@@ -46,7 +59,7 @@ impl Display for Action {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, PartialEq, Eq, Hash, Default)]
 pub struct Game {
     board: Board,
     current_player: Player,
@@ -63,7 +76,6 @@ impl Game {
             winner: None,
         }
     }
-    
     
     /// Parses the given data into a Game
     pub fn parse(board: Board, current_player: Player) -> Self {
@@ -158,6 +170,20 @@ impl Game {
     /// Checks if this game is over
     pub fn is_over(&self) -> bool {
         self.actions(Bot).next() == None && self.actions(Human).next() == None
+    }
+    
+    /// Returns the winner of the game
+    /// 
+    /// Pre-conditions
+    /// * self.is_over()
+    pub fn winner(&self) -> Option<Player> {
+        assert!(self.is_over());
+        self.winner
+    }
+    
+    /// Returns the board of the game
+    pub fn board(&self) -> &Board {
+        &self.board
     }
     
     /// Returns the utility of this game

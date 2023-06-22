@@ -4,12 +4,12 @@ use std::fmt::{Display, Formatter};
 use Direction::{East, North, NorthEast, NorthWest, South, SouthEast, SouthWest, West};
 
 use crate::board::Disk::{Dark, Light};
-use crate::errors::BoardError;
-use crate::errors::BoardError::{InvalidArgument, ParseError};
+use crate::errors::Error;
+use crate::errors::Error::{InvalidArgument, ParseError};
 
 pub const BOARD_SIZE: usize = 8;
 
-const EMPTY_CHAR: char = 'E';
+pub const EMPTY_CHAR: char = 'E';
 
 const POSITION_WEIGHTS: [[i32; BOARD_SIZE]; BOARD_SIZE] = [
     [ 30, -25, 10, 5, 5, 10, -25,  30],
@@ -62,16 +62,17 @@ impl Display for Disk {
 impl Disk {
     
     /// Parses the given character into a disk
-    pub fn parse(ch: char) -> Result<Self, BoardError> {
+    pub fn parse(ch: char) -> Result<Self, Error> {
         match ch {
             'D' => Ok(Dark),
             'L' => Ok(Light),
             _ => Err(ParseError(format!("Invalid character to parse into a disk: {}", ch))),
         }
     }
-    
+
+    #[cfg(test)]
     /// Returns the opposite disk
-    pub fn opposite(&self) -> Self {
+    fn opposite(&self) -> Self {
         match *self {
             Dark => Light,
             Light => Dark,
@@ -155,7 +156,7 @@ impl Display for Position {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Clone, PartialEq, Eq, Hash)]
 pub struct Board {
     grid: [[Option<Disk>; BOARD_SIZE]; BOARD_SIZE],
 }
@@ -200,7 +201,7 @@ impl Board {
     }
     
     /// Parses the given data to a board
-    pub fn parse(data: String) -> Result<Self, BoardError> {
+    pub fn parse(data: String) -> Result<Self, Error> {
         let mut board = Board::new();
         for (i, line) in data.lines().enumerate() {
             for (j, ch) in line.chars().enumerate() {
@@ -224,7 +225,7 @@ impl Board {
     /// Places the disk at the given position
     /// Pre-conditions:
     /// * Given position isn't occupied by a disk
-    pub fn place(&mut self, disk: Disk, pos: &Position) -> Result<(), BoardError> {
+    pub fn place(&mut self, disk: Disk, pos: &Position) -> Result<(), Error> {
         if self.disk(pos).is_some() {
             return Err(InvalidArgument(
                 format!("Given position is not empty to place a disk: {}", pos)));
@@ -247,7 +248,7 @@ impl Board {
     /// Pre-conditions:
     /// * pos.is_inbound()
     /// * The given position must be occupied by a disk
-    pub fn flip(&mut self, pos: &Position) -> Result<(), BoardError> {
+    pub fn flip(&mut self, pos: &Position) -> Result<(), Error> {
         assert!(pos.is_inbound());
 
         match self.disk(pos) {
@@ -303,7 +304,8 @@ impl Board {
         
         if neighbour.is_inbound() {Some(neighbour)} else {None}
     }
-    
+
+    #[cfg(test)]
     /// Clears this board
     pub fn clear(&mut self) {
         self.grid = [[None; BOARD_SIZE]; BOARD_SIZE];
