@@ -1,16 +1,17 @@
-mod board;
-mod errors;
-mod game;
-mod bot;
-
 #[macro_use] extern crate rocket;
 
 use itertools::Itertools;
 use rocket::response::status::BadRequest;
 use serde_json::{json, Value};
+
 use crate::board::Board;
 use crate::bot::Bot;
 use crate::game::{Game, Player};
+
+mod board;
+mod errors;
+mod game;
+mod bot;
 
 #[get("/")]
 fn index() -> &'static str {

@@ -71,15 +71,6 @@ impl Disk {
             _ => Err(ParseError(format!("Invalid character to parse into a disk: {}", ch))),
         }
     }
-
-    #[cfg(test)]
-    /// Returns the opposite disk
-    fn opposite(&self) -> Self {
-        match *self {
-            Dark => Light,
-            Light => Dark,
-        }
-    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
