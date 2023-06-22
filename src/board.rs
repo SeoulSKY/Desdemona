@@ -341,8 +341,7 @@ mod tests {
         EEELDEEE\n\
         EEEEEEEE\n\
         EEEEEEEE\n\
-        EEEEEEEE\n\
-        "
+        EEEEEEEE"
         )
     }
     
