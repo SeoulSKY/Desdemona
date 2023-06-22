@@ -1,8 +1,8 @@
 use std::cmp::{max, min};
 use std::collections::HashMap;
+
 use crate::errors::Error;
 use crate::errors::Error::InvalidArgument;
-
 use crate::game::{Action, Game};
 use crate::game::Player;
 

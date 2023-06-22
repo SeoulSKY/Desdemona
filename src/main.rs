@@ -18,22 +18,16 @@ fn index() -> &'static str {
     "Hello World!"
 }
 
-#[get("/actions?<board>&<current_player>")]
-fn actions(board: String, current_player: String) -> Result<String, BadRequest<String>> {
+#[get("/actions?<board>")]
+fn actions(board: String) -> Result<String, BadRequest<String>> {
     let board = Board::parse(board);
     if board.is_err() {
         return Err(BadRequest(Some("Invalid board".to_string())));
     }
     
-    let current_player = Player::parse(current_player.chars().next().unwrap());
-    if current_player.is_err() {
-        return Err(BadRequest(Some("Invalid player".to_string())));
-    }
-    
-    let current_player = current_player.unwrap();
-    let game = Game::parse(board.unwrap(), current_player.clone());
+    let game = Game::parse(board.unwrap(), Player::Human);
     Ok(Value::Array(
-        game.actions(current_player)
+        game.actions(Player::Human)
             .map(|a| Value::String(a.to_string()))
             .collect_vec()
     ).to_string())

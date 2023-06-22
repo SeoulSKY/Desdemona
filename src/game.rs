@@ -1,8 +1,7 @@
 use std::fmt::{Display, Formatter};
+
 use crate::board::{Board, Direction, Disk, Position};
 use crate::board::Disk::{Dark, Light};
-use crate::errors::Error;
-use crate::errors::Error::InvalidArgument;
 use crate::game::Player::{Bot, Human};
 
 pub const BOT_CHAR: char = 'B';
@@ -19,15 +18,6 @@ pub enum Player {
 }
 
 impl Player {
-    
-    /// Parses the given character to Player
-    pub fn parse(ch: char) -> Result<Self, Error> {
-        match ch {
-            BOT_CHAR => Ok(Bot),
-            HUMAN_CHAR => Ok(Human),
-            _ => Err(InvalidArgument(format!("Failed to parse: {}", ch))),
-        }
-    }
     
     /// Returns the opponent of this player
     pub fn opponent(&self) -> Self {
