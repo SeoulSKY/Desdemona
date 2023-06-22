@@ -46,6 +46,15 @@ impl Player {
     }
 }
 
+impl Display for Player {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match *self {
+            Bot => BOT_CHAR,
+            Human => HUMAN_CHAR,
+        })
+    }
+}
+
 
 #[derive(Default, PartialEq)]
 pub struct Action {

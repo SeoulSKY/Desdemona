@@ -59,7 +59,7 @@ fn decide(board: String, intelligence: u32) -> Result<String, BadRequest<String>
     });
     
     if game.is_over() {
-        json["winner"] = serde_json::to_value(game.winner().map(|p| p.disk().to_string()))
+        json["winner"] = serde_json::to_value(game.winner().map(|p| p.to_string()))
             .unwrap_or_else(|_| Value::Null);
     }
     

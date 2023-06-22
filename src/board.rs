@@ -9,6 +9,8 @@ use crate::errors::Error::{InvalidArgument, ParseError};
 
 pub const BOARD_SIZE: usize = 8;
 
+pub const DARK_CHAR: char = 'D';
+pub const LIGHT_CHAR: char = 'L';
 pub const EMPTY_CHAR: char = 'E';
 
 const POSITION_WEIGHTS: [[i32; BOARD_SIZE]; BOARD_SIZE] = [
@@ -52,10 +54,10 @@ pub enum Disk {
 
 impl Display for Disk {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            Dark => write!(f, "D"),
-            _ => write!(f, "L"),
-        }
+        write!(f, "{}", match *self {
+            Dark => DARK_CHAR,
+            Light => LIGHT_CHAR,
+        })
     }
 }
 
@@ -64,8 +66,8 @@ impl Disk {
     /// Parses the given character into a disk
     pub fn parse(ch: char) -> Result<Self, Error> {
         match ch {
-            'D' => Ok(Dark),
-            'L' => Ok(Light),
+            DARK_CHAR => Ok(Dark),
+            LIGHT_CHAR => Ok(Light),
             _ => Err(ParseError(format!("Invalid character to parse into a disk: {}", ch))),
         }
     }
