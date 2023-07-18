@@ -135,12 +135,12 @@
       },
       "url": "https://packages.unity.com"
     },
-    "com.vladfaust.unitywakatime": {
-      "version": "https://github.com/vladfaust/unity-wakatime.git#package",
+    "com.vanbassum.wakatime": {
+      "version": "https://github.com/vanBassum/Wakatime.Unity.git",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "4dedbeac2e2d61c5c892e517728d2c4c74ce0acc"
+      "hash": "66217422184ea3caa5e31320a58b83e6a1e08898"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",

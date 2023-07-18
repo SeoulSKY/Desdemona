@@ -10,6 +10,7 @@
     "com.unity.timeline": "1.6.4",
     "com.unity.ugui": "1.0.0",
     "com.unity.visualscripting": "1.8.0",
+    "com.vanbassum.wakatime": "https://github.com/vanBassum/Wakatime.Unity.git",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
@@ -40,7 +41,6 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0",
-    "com.vladfaust.unitywakatime": "https://github.com/vladfaust/unity-wakatime.git#package"
+    "com.unity.modules.xr": "1.0.0"
   }
 }
