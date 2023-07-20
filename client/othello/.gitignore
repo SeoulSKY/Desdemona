@@ -75,3 +75,4 @@ crashlytics-build.properties
 **/mono_crash*
 **/.DS_Store
 .wakatime-project
+.env

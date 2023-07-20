@@ -18,6 +18,11 @@ fn index() -> &'static str {
     "Hello World!"
 }
 
+#[get("/initial-board")]
+fn initial_board() -> String {
+    Board::new().to_string()
+}
+
 #[get("/actions?<board>")]
 fn actions(board: String) -> Result<String, BadRequest<String>> {
     let board = Board::parse(board);
@@ -64,7 +69,7 @@ fn decide(board: String, intelligence: u32) -> Result<String, BadRequest<String>
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
     rocket::build()
-        .mount("/", routes![index, actions, decide])
+        .mount("/", routes![index, initial_board, actions, decide])
         .launch()
         .await?;
 

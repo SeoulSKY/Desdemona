@@ -1,19 +1,27 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{2688860f-4831-8282-f324-ba7fd510c727}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CandyCoded.env", "CandyCoded.env.csproj", "{fa6d0003-74c0-5da0-eefd-52e857d44736}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "com.vanbassum.wakatime", "com.vanbassum.wakatime.csproj", "{f18ea7e2-af51-c212-dc89-82a600383427}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{2688860f-4831-8282-f324-ba7fd510c727}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CandyCoded.env.Editor", "CandyCoded.env.Editor.csproj", "{d59f9941-b752-086e-5a5d-6ff05e5ff1ac}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{f18ea7e2-af51-c212-dc89-82a600383427}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{f18ea7e2-af51-c212-dc89-82a600383427}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2688860f-4831-8282-f324-ba7fd510c727}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2688860f-4831-8282-f324-ba7fd510c727}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{fa6d0003-74c0-5da0-eefd-52e857d44736}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{fa6d0003-74c0-5da0-eefd-52e857d44736}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{f18ea7e2-af51-c212-dc89-82a600383427}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{f18ea7e2-af51-c212-dc89-82a600383427}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{d59f9941-b752-086e-5a5d-6ff05e5ff1ac}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{d59f9941-b752-086e-5a5d-6ff05e5ff1ac}.Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
