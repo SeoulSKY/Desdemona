@@ -5,6 +5,12 @@ namespace Play
 {
     public class Tile : MonoBehaviour
     {
+        [Tooltip("The material that the tile will have when the mouse point enters")]
+        [SerializeField] private Material onMouseEnterMaterial;
+        
+        [Tooltip("The material that the tile will have when the mouse point is pressed")]
+        [SerializeField] private Material onMouseDownMaterial;
+        
         private Disk _disk;
 
         private void Awake()
@@ -64,6 +70,29 @@ namespace Play
             }
             
             _disk.SetColor(_disk.CurrentColor == Disk.Color.Dark ? Disk.Color.Light : Disk.Color.Dark);
+        }
+
+        private void OnMouseUpAsButton()
+        {
+            GetComponent<MeshRenderer>().materials = new Material[]{};
+            Debug.Log("Clicked!");
+            
+            OnMouseEnter();
+        }
+
+        private void OnMouseEnter()
+        {
+            GetComponent<MeshRenderer>().material = onMouseEnterMaterial;
+        }
+
+        private void OnMouseExit()
+        {
+            GetComponent<MeshRenderer>().materials = new Material[]{};
+        }
+
+        private void OnMouseDown()
+        {
+            GetComponent<MeshRenderer>().material = onMouseDownMaterial;
         }
     }
 }

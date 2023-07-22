@@ -154,6 +154,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 187903207}
     m_Modifications:
+    - target: {fileID: 2558511414496383276, guid: 047ae1ccc92ae4d10b82350216ba2a9b, type: 3}
+      propertyPath: onMouseDownMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 9d5cbb5bcd4fc4644a0b4b4378cb38fc, type: 2}
+    - target: {fileID: 2558511414496383276, guid: 047ae1ccc92ae4d10b82350216ba2a9b, type: 3}
+      propertyPath: onMouseEnterMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 74e6028ba82bd4a8fa78acf64d82d1e7, type: 2}
     - target: {fileID: 5206891376633389873, guid: 047ae1ccc92ae4d10b82350216ba2a9b, type: 3}
       propertyPath: m_RootOrder
       value: 0
