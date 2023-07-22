@@ -1520,9 +1520,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b579056e7bfb4613a6e3e092cb018a1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  reference: {fileID: 603256964958885888}
-  xDiskDistance: 0
-  zDiskDistance: 0
+  reference: {fileID: 0}
+  xTileDistance: 0
+  zTileDistance: 0
+  grid: {fileID: 0}
 --- !u!4 &1065963226
 Transform:
   m_ObjectHideFlags: 0
@@ -2787,7 +2788,7 @@ GameObject:
   - component: {fileID: 1776853814}
   - component: {fileID: 1776853813}
   m_Layer: 0
-  m_Name: Plane
+  m_Name: Table
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3768,17 +3769,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6390539306179927358, guid: 445390c49abe346248e4e6696f18c0d7, type: 3}
   m_PrefabInstance: {fileID: 2126017703}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &603256964958885888 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 26854587709668849, guid: 53c109427634b49f4b5281805f83637d, type: 3}
-  m_PrefabInstance: {fileID: 8403714857004968495}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1053eda99c4d47a1aa3f24d9f84984ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &8403714857004968495
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3786,10 +3776,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2625330867678290158, guid: 53c109427634b49f4b5281805f83637d, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8292612758317974347, guid: 53c109427634b49f4b5281805f83637d, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -3833,10 +3819,6 @@ PrefabInstance:
     - target: {fileID: 8292612758317974347, guid: 53c109427634b49f4b5281805f83637d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8403714856931738212, guid: 53c109427634b49f4b5281805f83637d, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.35
       objectReference: {fileID: 0}
     - target: {fileID: 8673537000379914737, guid: 53c109427634b49f4b5281805f83637d, type: 3}
       propertyPath: m_Name

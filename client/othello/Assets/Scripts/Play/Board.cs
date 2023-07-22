@@ -9,43 +9,45 @@ namespace Play
 {
     public class Board : MonoBehaviour
     {
-        [Tooltip("The reference disk to spawn other remaining disks")]
-        [SerializeField] private Disk reference;
+        [Tooltip("The reference tile to spawn other remaining tiles")]
+        [SerializeField] private Tile reference;
        
-        [Tooltip("The x distance between each disk")]
-        [SerializeField] private float xDiskDistance;
-        [Tooltip("The z distance between each disk")]
-        [SerializeField] private float zDiskDistance;
+        [Tooltip("The x distance between each tile")]
+        [SerializeField] private float xTileDistance;
+        [Tooltip("The z distance between each tile")]
+        [SerializeField] private float zTileDistance;
 
-        private const uint BoardSize = 8;
-        private Disk[,] _disks;
+        [Tooltip("The game object to create tiles as its children")]
+        [SerializeField] private GameObject grid;
+        private const uint GridSize = 8;
+        private Tile[,] _grid;
 
         private IEnumerator Start()
         {
-            CreateDisks();
+            PlaceTiles();
             yield return InitializeBoard();
         }
 
-        private void CreateDisks()
+        private void PlaceTiles()
         {
-            _disks = new Disk[BoardSize, BoardSize];
-            reference.gameObject.SetActive(false);
-            for (var i = 0; i < BoardSize; i++)
+            _grid = new Tile[GridSize, GridSize];
+            
+            for (var i = 0; i < GridSize; i++)
             {
-                for (var j = 0; j < BoardSize; j++)
+                for (var j = 0; j < GridSize; j++)
                 {
                     if (i == 0 && j == 0)
                     {
                         continue;
                     }
-                    
-                    var newDisk = Instantiate(reference, transform);
+
+                    var newTile = Instantiate(reference, grid.transform);
                     var refPos = reference.transform.position;
-                    
-                    newDisk.transform.position = new Vector3(refPos.x + j * xDiskDistance, refPos.y, refPos.z - i * zDiskDistance);
-                    newDisk.name = $"{i} {j}";
-                    newDisk.gameObject.SetActive(false);
-                    _disks[i, j] = newDisk;
+
+                    newTile.transform.position = new Vector3(refPos.x + i * xTileDistance, refPos.y, refPos.z - j * zTileDistance);
+                    newTile.name = $"Tile {i} {j}";
+                    newTile.gameObject.SetActive(true);
+                    _grid[i, j] = newTile;
                 }
             }
         }
@@ -67,19 +69,13 @@ namespace Play
                     .ToArray();
             }
             
-            for (var i = 0; i < BoardSize; i++)
+            for (var i = 0; i < GridSize; i++)
             {
-                for (var j = 0; j < BoardSize; j++)
+                for (var j = 0; j < GridSize; j++)
                 {
-                    switch (response[i][j])
+                    if (DiskColorMethods.CanParse(response[i][j]))
                     {
-                        case Disk.Light:
-                            _disks[i, j].FlipColor();
-                            _disks[i, j].gameObject.SetActive(true);
-                            break;
-                        case Disk.Dark:
-                            _disks[i, j].gameObject.SetActive(true);
-                            break;
+                        _grid[i, j].PlaceDisk(DiskColorMethods.Parse(response[i][j]));
                     }
                 }
             }
