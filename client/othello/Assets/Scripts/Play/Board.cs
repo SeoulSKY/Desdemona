@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using CandyCoded.env;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -47,6 +48,7 @@ namespace Play
                     newTile.transform.position = new Vector3(refPos.x + i * xTileDistance, refPos.y, refPos.z - j * zTileDistance);
                     newTile.name = $"Tile {i} {j}";
                     newTile.gameObject.SetActive(true);
+                    newTile.OnDiskPlaced += OnDiskPlaced;
                     _grid[i, j] = newTile;
                 }
             }
@@ -79,6 +81,34 @@ namespace Play
                     }
                 }
             }
+        }
+
+        private IEnumerator OnDiskPlaced()
+        {
+            using (var request = UnityWebRequest.Get($"{env.variables["AI_SERVER_HOST"]}/result"))
+            {
+                
+            }
+        }
+
+        /// <summary>
+        /// Convert this object to a string representation
+        /// </summary>
+        /// <returns>The converted string</returns>
+        private new string ToString()
+        {
+            var builder = new StringBuilder();
+
+            for (var i = 0; i < GridSize; i++)
+            {
+                for (var j = 0; j < GridSize; j++)
+                {
+                    builder.Append(_grid[i, j].ToString());
+                }
+                builder.Append('\n');
+            }
+
+            return builder.ToString().Trim();
         }
     }
 }

@@ -1,5 +1,6 @@
 use std::fmt;
 use std::fmt::{Display, Formatter};
+use itertools::Itertools;
 
 use Direction::{East, North, NorthEast, NorthWest, South, SouthEast, SouthWest, West};
 
@@ -87,6 +88,22 @@ impl Default for Position {
 
 impl Position {
     
+    /// Parses the given string into a position
+    pub fn parse(s: String) -> Result<Self, Error> {
+        if let [row, col] = s.split(",")
+            .map(|s| s.parse::<usize>())
+            .filter(|result| result.is_ok())
+            .map(|result| result.unwrap())
+            .collect_vec()[..] {
+            Ok(Self {
+                row,
+                col,
+            })
+        } else {
+            Err(ParseError(format!("Invalid string to parse into a position: {}", s)))
+        }
+    }
+    
     /// Creates a new Position
     pub fn new(row: usize, col: usize) -> Self {
         Self {
@@ -143,9 +160,7 @@ impl Position {
 impl Display for Position {
     
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        const ALPHABETS: [char; BOARD_SIZE] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-
-        write!(f, "{}{}", ALPHABETS[self.col], self.row + 1)
+        write!(f, "{},{}", self.row, self.col)
     }
 }
 
@@ -373,33 +388,33 @@ mod tests {
         };
         
         let pos = Position::new(0, 0);
-        assert_eq!(get_result(&pos), vec!["B1", "A2", "B2"]);
+        assert_eq!(get_result(&pos), vec!["0,1", "1,0", "1,1"]);
         
         let pos = Position::new(0, BOARD_SIZE - 1);
-        assert_eq!(get_result(&pos), vec!["G1", "G2", "H2"]);
+        assert_eq!(get_result(&pos), vec!["0,6", "1,6", "1,7"]);
         
         let pos = Position::new(BOARD_SIZE - 1, 0);
-        assert_eq!(get_result(&pos), vec!["A7", "B7", "B8"]);
+        assert_eq!(get_result(&pos), vec!["6,0", "6,1", "7,1"]);
 
         let pos = Position::new(BOARD_SIZE - 1, BOARD_SIZE - 1);
-        assert_eq!(get_result(&pos), vec!["G7", "H7", "G8"]);
+        assert_eq!(get_result(&pos), vec!["6,6", "6,7", "7,6"]);
 
         
         let pos = Position::new(0, 3);
-        assert_eq!(get_result(&pos), vec!["C1", "E1", "C2", "D2", "E2"]);
+        assert_eq!(get_result(&pos), vec!["0,2", "0,4", "1,2", "1,3", "1,4"]);
 
         let pos = Position::new(3, BOARD_SIZE - 1);
-        assert_eq!(get_result(&pos), vec!["G3", "H3", "G4", "G5", "H5"]);
+        assert_eq!(get_result(&pos), vec!["2,6", "2,7", "3,6", "4,6", "4,7"]);
 
         let pos = Position::new(BOARD_SIZE - 1, 3);
-        assert_eq!(get_result(&pos), vec!["C7", "D7", "E7", "C8", "E8"]);
+        assert_eq!(get_result(&pos), vec!["6,2", "6,3", "6,4", "7,2", "7,4"]);
 
         let pos = Position::new(3, 0);
-        assert_eq!(get_result(&pos), vec!["A3", "B3", "B4", "A5", "B5"]);
+        assert_eq!(get_result(&pos), vec!["2,0", "2,1", "3,1", "4,0", "4,1"]);
 
         
         let pos = Position::new(3, 3);
-        assert_eq!(get_result(&pos), vec!["C3", "D3", "E3", "C4", "E4", "C5", "D5", "E5"]);
+        assert_eq!(get_result(&pos), vec!["2,2", "2,3", "2,4", "3,2", "3,4", "4,2", "4,3", "4,4"]);
     }
     
     #[test]
@@ -412,14 +427,14 @@ mod tests {
         };
         
         let pos = Position::new(3, 3);
-        assert_eq!(get_result(&pos, North), Some("D3".to_string()));
-        assert_eq!(get_result(&pos, NorthEast), Some("E3".to_string()));
-        assert_eq!(get_result(&pos, East), Some("E4".to_string()));
-        assert_eq!(get_result(&pos, SouthEast), Some("E5".to_string()));
-        assert_eq!(get_result(&pos, South), Some("D5".to_string()));
-        assert_eq!(get_result(&pos, SouthWest), Some("C5".to_string()));
-        assert_eq!(get_result(&pos, West), Some("C4".to_string()));
-        assert_eq!(get_result(&pos, NorthWest), Some("C3".to_string()));
+        assert_eq!(get_result(&pos, North), Some("2,3".to_string()));
+        assert_eq!(get_result(&pos, NorthEast), Some("2,4".to_string()));
+        assert_eq!(get_result(&pos, East), Some("3,4".to_string()));
+        assert_eq!(get_result(&pos, SouthEast), Some("4,4".to_string()));
+        assert_eq!(get_result(&pos, South), Some("4,3".to_string()));
+        assert_eq!(get_result(&pos, SouthWest), Some("4,2".to_string()));
+        assert_eq!(get_result(&pos, West), Some("3,2".to_string()));
+        assert_eq!(get_result(&pos, NorthWest), Some("2,2".to_string()));
 
         let pos = Position::new(0, 0);
         assert_eq!(get_result(&pos, North), None);
@@ -451,7 +466,7 @@ mod tests {
                 .collect::<Vec<String>>()
         };
         
-        assert_eq!(get_result(Dark), vec!["A1", "B2"]);
+        assert_eq!(get_result(Dark), vec!["0,0", "1,1"]);
     }
     
     #[test]

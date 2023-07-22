@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 namespace Play
@@ -10,8 +11,18 @@ namespace Play
         
         [Tooltip("The material that the tile will have when the mouse point is pressed")]
         [SerializeField] private Material onMouseDownMaterial;
+
+
+        /// <summary>
+        /// A character that represents the empty tile
+        /// </summary>
+        private const char EmptyChar = 'E';
         
         private Disk _disk;
+        
+        public delegate IEnumerator DiskPlaced();
+        public event DiskPlaced OnDiskPlaced;
+
 
         private void Awake()
         {
@@ -72,12 +83,12 @@ namespace Play
             _disk.SetColor(_disk.CurrentColor == Disk.Color.Dark ? Disk.Color.Light : Disk.Color.Dark);
         }
 
-        private void OnMouseUpAsButton()
+        private IEnumerator OnMouseUpAsButton()
         {
             GetComponent<MeshRenderer>().materials = new Material[]{};
-            Debug.Log("Clicked!");
-            
             OnMouseEnter();
+
+            yield return OnDiskPlaced?.Invoke();
         }
 
         private void OnMouseEnter()
@@ -93,6 +104,15 @@ namespace Play
         private void OnMouseDown()
         {
             GetComponent<MeshRenderer>().material = onMouseDownMaterial;
+        }
+        
+        /// <summary>
+        /// Convert this object to a string representation
+        /// </summary>
+        /// <returns>The converted string</returns>
+        public new string ToString()
+        {
+            return HasDisk() ? _disk.CurrentColor.ToChar().ToString() : EmptyChar.ToString();
         }
     }
 }

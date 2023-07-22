@@ -4,9 +4,9 @@ use itertools::Itertools;
 use rocket::response::status::BadRequest;
 use serde_json::{json, Value};
 
-use crate::board::Board;
+use crate::board::{Board, Position};
 use crate::bot::Bot;
-use crate::game::{Game, Player};
+use crate::game::{Action, Game, Player};
 
 mod board;
 mod errors;
@@ -21,6 +21,30 @@ fn index() -> &'static str {
 #[get("/initial-board")]
 fn initial_board() -> String {
     Board::new().to_string()
+}
+
+#[get("/result?<board>&<action>&<player>")]
+fn result(board: String, action: String, player: String) -> Result<String, BadRequest<String>> {
+    let board = Board::parse(board);
+    if board.is_err() {
+        return Err(BadRequest(Some("Invalid board".to_string())));
+    }
+    
+    let player = player.chars().next();
+    if player.is_none() {
+        return Err(BadRequest(Some("Invalid player".to_string())));
+    }
+    
+    let player = Player::parse(player.unwrap());
+    if player.is_err() {
+        return Err(BadRequest(Some("Invalid player".to_string())));
+    }
+    let player = player.unwrap();
+
+    let game = Game::parse(board.unwrap(), player.clone());
+    let action = Action::parse(player, Position::parse(action).unwrap());
+    
+    return Ok(game.result(&action).board().to_string())
 }
 
 #[get("/actions?<board>")]
@@ -69,7 +93,7 @@ fn decide(board: String, intelligence: u32) -> Result<String, BadRequest<String>
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
     rocket::build()
-        .mount("/", routes![index, initial_board, actions, decide])
+        .mount("/", routes![index, initial_board, result, actions, decide])
         .launch()
         .await?;
 
