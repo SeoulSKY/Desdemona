@@ -1520,9 +1520,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b579056e7bfb4613a6e3e092cb018a1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  reference: {fileID: 0}
-  xTileDistance: 0
-  zTileDistance: 0
   grid: {fileID: 0}
   bot: {fileID: 0}
 --- !u!4 &1065963226
@@ -3821,6 +3818,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2450795189907152220, guid: 53c109427634b49f4b5281805f83637d, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 8292612758317974347, guid: 53c109427634b49f4b5281805f83637d, type: 3}
       propertyPath: m_RootOrder
       value: 2

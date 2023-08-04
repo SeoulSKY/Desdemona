@@ -51,15 +51,15 @@ namespace Play
         /// <summary>
         /// Returns the result of the given action applied to the board
         /// </summary>
-        /// <param name="board">The board to apply</param>
+        /// <param name="grid">The grid to apply</param>
         /// <param name="player">The current player</param>
         /// <param name="tile">The tile to place a disk</param>
         /// <param name="callback">The method to be called with the result</param>
         /// <returns></returns>
-        public IEnumerator Result(Board board, Player player, Tile tile, Action<char[][]> callback)
+        public IEnumerator Result(Grid grid, Player player, Tile tile, Action<char[][]> callback)
         {
             yield return SendGet("result", s => callback(ParseGrid(s)),
-                new Tuple<string, string>("board", board.ToString()),
+                new Tuple<string, string>("board", grid.ToString()),
                 new Tuple<string, string>("player", player.ToChar().ToString()),
                 new Tuple<string, string>("position", tile.name)
                     );
