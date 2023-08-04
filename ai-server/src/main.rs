@@ -23,8 +23,8 @@ fn initial_board() -> String {
     Board::new().to_string()
 }
 
-#[get("/result?<board>&<action>&<player>")]
-fn result(board: String, action: String, player: String) -> Result<String, BadRequest<String>> {
+#[get("/result?<board>&<position>&<player>")]
+fn result(board: String, position: String, player: String) -> Result<String, BadRequest<String>> {
     let board = Board::parse(board);
     if board.is_err() {
         return Err(BadRequest(Some("Invalid board".to_string())));
@@ -42,7 +42,7 @@ fn result(board: String, action: String, player: String) -> Result<String, BadRe
     let player = player.unwrap();
 
     let game = Game::parse(board.unwrap(), player.clone());
-    let action = Action::parse(player, Position::parse(action).unwrap());
+    let action = Action::parse(player, Position::parse(position).unwrap());
     
     if !game.actions(player).contains(&action) {
         return Err(BadRequest(Some("Invalid action for the given player".to_string())));

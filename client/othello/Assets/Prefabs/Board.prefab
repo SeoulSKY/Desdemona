@@ -147,6 +147,7 @@ MonoBehaviour:
   xTileDistance: 1
   zTileDistance: 1
   grid: {fileID: 187903206}
+  bot: {fileID: 0}
 --- !u!1001 &5206891376367884341
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -236,7 +237,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 74e6028ba82bd4a8fa78acf64d82d1e7, type: 2}
     - target: {fileID: 5206891376633389878, guid: 047ae1ccc92ae4d10b82350216ba2a9b, type: 3}
       propertyPath: m_Name
-      value: Tile 0 0
+      value: 0,0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 047ae1ccc92ae4d10b82350216ba2a9b, type: 3}
