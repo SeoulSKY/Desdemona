@@ -39,14 +39,15 @@ namespace Play
                 {
                     if (i == 0 && j == 0)
                     {
+                        _grid[i, j] = reference;
                         continue;
                     }
 
                     var newTile = Instantiate(reference, grid.transform);
                     var refPos = reference.transform.position;
 
-                    newTile.transform.position = new Vector3(refPos.x + i * xTileDistance, refPos.y, refPos.z - j * zTileDistance);
-                    newTile.name = $"Tile {i} {j}";
+                    newTile.transform.position = new Vector3(refPos.x + j * xTileDistance, refPos.y, refPos.z - i * zTileDistance);
+                    newTile.name = $"{i},{j}";
                     newTile.gameObject.SetActive(true);
                     newTile.OnDiskPlaced += OnDiskPlaced;
                     _grid[i, j] = newTile;
@@ -83,11 +84,48 @@ namespace Play
             }
         }
 
-        private IEnumerator OnDiskPlaced()
+        private IEnumerator OnDiskPlaced(Tile tile)
         {
-            using (var request = UnityWebRequest.Get($"{env.variables["AI_SERVER_HOST"]}/result"))
+            char[][] response;
+            using (var request = UnityWebRequest.Get($"{env.variables["AI_SERVER_HOST"]}/result?board={ToString()}&player=H&action={tile.name}"))
             {
+                yield return request.SendWebRequest();
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    throw new HttpRequestException(request.error);
+                }
                 
+                Debug.Log($"Resulted board: \n{request.downloadHandler.text}");
+                response = request.downloadHandler.text
+                    .Split("\n")
+                    .Select(line => line.ToCharArray())
+                    .ToArray();
+            }
+
+
+            for (var i = 0; i < GridSize; i++)
+            {
+                for (var j = 0; j < GridSize; j++)
+                {
+                    if (!DiskColorMethods.CanParse(response[i][j]))
+                    {
+                        if (_grid[i, j].HasDisk())
+                        {
+                            _grid[i, j].ClearDisk();
+                        }
+                        continue;
+                    }
+                    
+                    var diskColor = DiskColorMethods.Parse(response[i][j]);
+
+                    if (!_grid[i, j].HasDisk())
+                    {
+                        _grid[i, j].PlaceDisk(diskColor);
+                    } else if (_grid[i, j].DiskColor() != diskColor)
+                    {
+                        _grid[i, j].FlipDisk();
+                    }
+                }
             }
         }
 

@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Play
 {
@@ -20,7 +22,7 @@ namespace Play
         
         private Disk _disk;
         
-        public delegate IEnumerator DiskPlaced();
+        public delegate IEnumerator DiskPlaced(Tile tile);
         public event DiskPlaced OnDiskPlaced;
 
 
@@ -40,6 +42,21 @@ namespace Play
         }
 
         /// <summary>
+        /// Get the color of the disk on this tile
+        /// </summary>
+        /// <returns>The color of the disk</returns>
+        /// <exception cref="InvalidOperationException">If !HasDisk()</exception>
+        public Disk.Color DiskColor()
+        {
+            if (!HasDisk())
+            {
+                throw new InvalidOperationException("There is no disk on this tile to get its color");
+            }
+
+            return _disk.CurrentColor;
+        }
+
+        /// <summary>
         /// Place a disk on this tile
         /// </summary>
         /// <param name="color">The color of the disk to place</param>
@@ -53,6 +70,8 @@ namespace Play
             
             _disk.SetColor(color);
             _disk.gameObject.SetActive(true);
+            
+            Debug.Log($"Placed {color} at {name}");
         }
 
         /// <summary>
@@ -68,7 +87,7 @@ namespace Play
 
             _disk.gameObject.SetActive(false);
         }
-        
+
         /// <summary>
         /// FLip the disk on this tile and display the other color
         /// </summary>
@@ -81,14 +100,15 @@ namespace Play
             }
             
             _disk.SetColor(_disk.CurrentColor == Disk.Color.Dark ? Disk.Color.Light : Disk.Color.Dark);
+            Debug.Log($"Flipped {name}");
         }
 
         private IEnumerator OnMouseUpAsButton()
         {
             GetComponent<MeshRenderer>().materials = new Material[]{};
             OnMouseEnter();
-
-            yield return OnDiskPlaced?.Invoke();
+            
+            yield return OnDiskPlaced?.Invoke(this);
         }
 
         private void OnMouseEnter()

@@ -68,7 +68,9 @@ namespace Play
             CurrentColor = color;
             
             var rot = transform.rotation;
-            transform.rotation = new Quaternion(color == Color.Dark ? 0 : 180, rot.y, rot.z, rot.w);
+            
+            transform.Rotate(color == Color.Dark ? 0 : 180, rot.y, rot.z);
+            // transform.rotation = new Quaternion(color == Color.Dark ? 0 : 180, rot.y, rot.z, rot.w);
         }
     }
 }

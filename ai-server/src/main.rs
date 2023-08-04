@@ -44,7 +44,11 @@ fn result(board: String, action: String, player: String) -> Result<String, BadRe
     let game = Game::parse(board.unwrap(), player.clone());
     let action = Action::parse(player, Position::parse(action).unwrap());
     
-    return Ok(game.result(&action).board().to_string())
+    if !game.actions(player).contains(&action) {
+        return Err(BadRequest(Some("Invalid action for the given player".to_string())));
+    }
+    
+    Ok(game.result(&action).board().to_string())
 }
 
 #[get("/actions?<board>")]
