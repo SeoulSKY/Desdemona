@@ -67,7 +67,7 @@ namespace Play
         {
             CurrentColor = color;
             
-            var rot = transform.rotation;
+            var rot = transform.eulerAngles;
             transform.Rotate(color == Color.Dark ? 0 : 180, rot.y, rot.z);
         }
     }
