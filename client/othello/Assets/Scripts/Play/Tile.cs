@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using JetBrains.Annotations;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -18,13 +19,15 @@ namespace Play
         /// A character that represents the empty tile
         /// </summary>
         private const char EmptyChar = 'E';
-        
+
         private Disk _disk;
+
+        [CanBeNull]
+        public Disk Disk => _disk.gameObject.activeSelf ? _disk : null;
         
         public delegate IEnumerator DiskPlaced(Tile tile);
         public event DiskPlaced OnDiskPlaced;
-
-
+        
         private void Awake()
         {
             _disk = GetComponentInChildren<Disk>(true);
@@ -32,43 +35,19 @@ namespace Play
         }
 
         /// <summary>
-        /// Check if the disk is present on the tile
-        /// </summary>
-        /// <returns>true if it is present, false otherwise</returns>
-        public bool HasDisk()
-        {
-            return _disk.gameObject.activeSelf;
-        }
-
-        /// <summary>
-        /// Get the color of the disk on this tile
-        /// </summary>
-        /// <returns>The color of the disk</returns>
-        /// <exception cref="InvalidOperationException">If !HasDisk()</exception>
-        public Disk.Color DiskColor()
-        {
-            if (!HasDisk())
-            {
-                throw new InvalidOperationException("There is no disk on this tile to get its color");
-            }
-
-            return _disk.CurrentColor;
-        }
-
-        /// <summary>
         /// Place a disk on this tile
         /// </summary>
         /// <param name="color">The color of the disk to place</param>
-        /// <exception cref="InvalidOperationException">If HasDisk()</exception>
-        public void PlaceDisk(Disk.Color color)
+        /// <exception cref="InvalidOperationException">If Disk != null</exception>
+        public void PlaceDisk(DiskColor color)
         {
-            if (HasDisk())
+            if (Disk != null)
             {
                 throw new InvalidOperationException("This tile is occupied by another disk");
             }
             
-            _disk.SetColor(color);
             _disk.gameObject.SetActive(true);
+            _disk.Color = color;
             
             Debug.Log($"Placed {color} at {name}");
         }
@@ -76,30 +55,17 @@ namespace Play
         /// <summary>
         /// Clear the disk on this tile
         /// </summary>
-        /// <exception cref="InvalidOperationException">If !HasDisk()</exception>
+        /// <exception cref="InvalidOperationException">If Disk == null</exception>
         public void ClearDisk()
         {
-            if (!HasDisk())
+            if (Disk == null)
             {
                 throw new InvalidOperationException("There is no disk on this tile to clear");
             }
 
             _disk.gameObject.SetActive(false);
-        }
-
-        /// <summary>
-        /// FLip the disk on this tile and display the other color
-        /// </summary>
-        /// <exception cref="InvalidOperationException">If !HasDisk()</exception>
-        public void FlipDisk()
-        {
-            if (!HasDisk())
-            {
-                throw new InvalidOperationException("There is no disk on this tile to flip");
-            }
             
-            _disk.SetColor(_disk.CurrentColor == Disk.Color.Dark ? Disk.Color.Light : Disk.Color.Dark);
-            Debug.Log($"Flipped {name}");
+            Debug.Log($"Cleared the disk at {name}");
         }
 
         private IEnumerator OnMouseUpAsButton()
@@ -131,7 +97,7 @@ namespace Play
         /// <returns>The converted string</returns>
         public new string ToString()
         {
-            return HasDisk() ? _disk.CurrentColor.ToChar().ToString() : EmptyChar.ToString();
+            return Disk != null ? Disk.Color.ToChar().ToString() : EmptyChar.ToString();
         }
     }
 }

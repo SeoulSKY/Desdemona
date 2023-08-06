@@ -7,8 +7,10 @@ namespace Play
 {
     public class Grid : MonoBehaviour
     {
-        [Tooltip("The reference tile to spawn other remaining tiles")]
-        [SerializeField] private Tile reference;
+        /// <summary>
+        /// The reference tile to spawn other remaining tiles
+        /// </summary>
+        private Tile _referenceTile;
        
         [Tooltip("The x distance between each tile")]
         [SerializeField] private float xTileDistance;
@@ -20,7 +22,12 @@ namespace Play
 
         public delegate IEnumerator DiskPlaced(Tile tile);
         public event DiskPlaced OnDiskPlaced;
-        
+
+        private void Awake()
+        {
+            _referenceTile = GetComponentInChildren<Tile>();
+        }
+
         private void Start()
         {
             PlaceTiles();
@@ -50,14 +57,14 @@ namespace Play
                 Tile current;
                 if (i == 0 && j == 0)
                 {
-                    current = reference;
+                    current = _referenceTile;
                 }
                 else
                 {
-                    current = Instantiate(reference, transform);
+                    current = Instantiate(_referenceTile, transform);
                 }
 
-                var refPos = reference.transform.position;
+                var refPos = _referenceTile.transform.position;
 
                 current.transform.position = new Vector3(refPos.x + j * xTileDistance, refPos.y, refPos.z - i * zTileDistance);
                 current.name = $"{i},{j}";

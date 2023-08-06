@@ -45,7 +45,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1110d7555d5044f8b99a41ac559a16a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  reference: {fileID: 7765103568803399961}
   xTileDistance: 1
   zTileDistance: 1
 --- !u!1 &8673537000379914737
@@ -159,7 +158,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b579056e7bfb4613a6e3e092cb018a1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grid: {fileID: 1486086732}
   bot: {fileID: 0}
 --- !u!1001 &5206891376367884341
 PrefabInstance:
@@ -252,6 +250,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tile
       objectReference: {fileID: 0}
+    - target: {fileID: 7656226170015647081, guid: 047ae1ccc92ae4d10b82350216ba2a9b, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 047ae1ccc92ae4d10b82350216ba2a9b, type: 3}
 --- !u!4 &808778500 stripped
@@ -259,14 +261,3 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5206891376633389873, guid: 047ae1ccc92ae4d10b82350216ba2a9b, type: 3}
   m_PrefabInstance: {fileID: 5206891376367884341}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7765103568803399961 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2558511414496383276, guid: 047ae1ccc92ae4d10b82350216ba2a9b, type: 3}
-  m_PrefabInstance: {fileID: 5206891376367884341}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ee4536642b24365afa4fe8ebde4b4db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

@@ -5,23 +5,27 @@ namespace Play
 {
     public class Board : MonoBehaviour
     {
-        [Tooltip("The game object to create tiles as its children")]
-        [SerializeField] private Grid grid;
-        
         [Tooltip("The game object for communicating with the AI server")]
         [SerializeField] private Bot bot;
         
+        private Grid _grid;
+
+        private void Awake()
+        {
+            _grid = GetComponentInChildren<Grid>();
+        }
+        
         private IEnumerator Start()
         {
-            grid.OnDiskPlaced += OnDiskPlaced;
             yield return InitializeBoard();
+            _grid.OnDiskPlaced += OnDiskPlaced;
         }
 
         private IEnumerator InitializeBoard()
         {
             yield return bot.InitialBoard(response =>
             {
-                grid.Enumerate((i, j, tile) =>
+                _grid.Enumerate((i, j, tile) =>
                 {
                     if (!DiskColorMethods.CanParse(response[i][j]))
                     {
@@ -34,13 +38,13 @@ namespace Play
         
         private IEnumerator OnDiskPlaced(Tile tile)
         {
-            yield return bot.Result(grid, Player.Human, tile, response =>
+            yield return bot.Result(_grid, Player.Human, tile, response =>
             {
-                grid.Enumerate((i, j, current) =>
+                _grid.Enumerate((i, j, current) =>
                 {
                     if (!DiskColorMethods.CanParse(response[i][j]))
                     {
-                        if (current.HasDisk())
+                        if (current.Disk != null)
                         {
                             current.ClearDisk();
                         }
@@ -49,13 +53,13 @@ namespace Play
                     
                     var diskColor = DiskColorMethods.Parse(response[i][j]);
 
-                    if (!current.HasDisk())
+                    if (current.Disk == null)
                     {
                         current.PlaceDisk(diskColor);
                     } 
-                    else if (current.DiskColor() != diskColor)
+                    else if (current.Disk.Color != diskColor)
                     {
-                        current.FlipDisk();
+                        current.Disk.Flip();
                     }
                 });
             });
