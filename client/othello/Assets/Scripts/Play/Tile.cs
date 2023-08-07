@@ -19,15 +19,15 @@ namespace Play
         /// A character that represents the empty tile
         /// </summary>
         private const char EmptyChar = 'E';
-
-        private Disk _disk;
-
-        [CanBeNull]
-        public Disk Disk => _disk.gameObject.activeSelf ? _disk : null;
         
+        private Disk _disk;
+        
+        [CanBeNull]
+        public Disk Disk { get; private set; }
+
         public delegate IEnumerator DiskPlaced(Tile tile);
         public event DiskPlaced OnDiskPlaced;
-        
+
         private void Awake()
         {
             _disk = GetComponentInChildren<Disk>(true);
@@ -43,12 +43,13 @@ namespace Play
         {
             if (Disk != null)
             {
-                throw new InvalidOperationException("This tile is occupied by another disk");
+                throw new InvalidOperationException($"Tile {name} is occupied by another disk");
             }
             
             _disk.gameObject.SetActive(true);
+            Disk = _disk;
             _disk.Color = color;
-            
+
             Debug.Log($"Placed {color} at {name}");
         }
 
@@ -60,11 +61,11 @@ namespace Play
         {
             if (Disk == null)
             {
-                throw new InvalidOperationException("There is no disk on this tile to clear");
+                throw new InvalidOperationException($"There is no disk on tile {name} to clear");
             }
 
+            Disk = null;
             _disk.gameObject.SetActive(false);
-            
             Debug.Log($"Cleared the disk at {name}");
         }
 
