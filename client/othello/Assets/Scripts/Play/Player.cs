@@ -40,11 +40,17 @@ namespace Play
         /// <returns>The converted char</returns>
         public static char ToChar(this Player player)
         {
-            return player switch
-            {
-                Player.Bot => BotChar,
-                var _ => HumanChar,
-            };
+            return player == Player.Bot ? BotChar : HumanChar;
+        }
+
+        /// <summary>
+        /// Returns the corresponding disk color for this player
+        /// </summary>
+        /// <param name="player">The player to convert</param>
+        /// <returns></returns>
+        public static DiskColor Disk(this Player player)
+        {
+            return player == Player.Bot ? DiskColor.Light : DiskColor.Dark;
         }
     }
     

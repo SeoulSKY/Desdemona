@@ -71,7 +71,6 @@ namespace Play
     
     public class Disk : MonoBehaviour
     {
-
         private Animator _animator;
         private int _darkHash;
         private int _lightHash;

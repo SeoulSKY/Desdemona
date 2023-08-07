@@ -38,30 +38,46 @@ namespace Play
         
         private IEnumerator OnDiskPlaced(Tile tile)
         {
-            yield return bot.Result(_grid, Player.Human, tile, response =>
+            yield return bot.Result(_grid, Player.Human, tile, UpdateGrid);
+            yield return new WaitForSeconds(1);
+            yield return bot.Decide(_grid, (decision, result, winner) =>
             {
-                _grid.Enumerate((i, j, current) =>
-                {
-                    if (!DiskColorMethods.CanParse(response[i][j]))
-                    {
-                        if (current.Disk != null)
-                        {
-                            current.ClearDisk();
-                        }
-                        return;
-                    }
-                    
-                    var diskColor = DiskColorMethods.Parse(response[i][j]);
+                decision.PlaceDisk(Player.Bot.Disk());
+                UpdateGrid(result);
 
-                    if (current.Disk == null)
+                if (!winner.HasValue)
+                {
+                    return;
+                }
+                
+                Debug.Log("Game over");
+                Debug.Log(PlayerMethods.CanParse(winner.Value) ? $"Winner: {PlayerMethods.Parse(winner.Value)}" : "Winner: Draw");
+            });
+        }
+        
+        private void UpdateGrid(char[][] newGrid)
+        {
+            _grid.Enumerate((i, j, current) =>
+            {
+                if (!DiskColorMethods.CanParse(newGrid[i][j]))
+                {
+                    if (current.Disk != null)
                     {
-                        current.PlaceDisk(diskColor);
-                    } 
-                    else if (current.Disk.Color != diskColor)
-                    {
-                        current.Disk.Flip();
+                        current.ClearDisk();
                     }
-                });
+                    return;
+                }
+                    
+                var diskColor = DiskColorMethods.Parse(newGrid[i][j]);
+
+                if (current.Disk == null)
+                {
+                    current.PlaceDisk(diskColor);
+                } 
+                else if (current.Disk.Color != diskColor)
+                {
+                    current.Disk.Flip();
+                }
             });
         }
     }

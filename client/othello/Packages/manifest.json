@@ -42,6 +42,7 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0",
-    "xyz.candycoded.env": "https://github.com/CandyCoded/env.git#v1.1.0"
+    "xyz.candycoded.env": "https://github.com/CandyCoded/env.git#v1.1.0",
+    "com.unity.nuget.newtonsoft-json": "3.0.2"
   }
 }

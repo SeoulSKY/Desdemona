@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using CandyCoded.env;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -11,6 +13,7 @@ namespace Play
     public class Bot : MonoBehaviour
     {
         private string _host;
+        private uint _intelligence = 1;
 
         private void Awake()
         {
@@ -63,6 +66,31 @@ namespace Play
                 new Tuple<string, string>("player", player.ToChar().ToString()),
                 new Tuple<string, string>("position", tile.name)
                     );
+        }
+        
+        /// <summary>
+        /// Returns the decision of the AI from the given grid
+        /// </summary>
+        /// <param name="grid">The grid to decide the next action of the AI</param>
+        /// <param name="callback">The method to be called with the result</param>
+        /// <returns></returns>
+        public IEnumerator Decide(Grid grid, Action<Tile, char[][], char?> callback)
+        {
+            yield return SendGet("decide", s =>
+            {
+                var response = JsonConvert.DeserializeObject<Dictionary<string, string>>(s);
+                if (response == null)
+                {
+                    throw new JsonException("Invalid format of Json received from the server");
+                }
+
+                callback(
+                    grid.GetComponentsInChildren<Tile>().First(t => t.name == response["decision"]),
+                    ParseGrid(response["result"]),
+                    response.TryGetValue("winner", out var winner) ? winner[0] : null
+                    );
+            }, new Tuple<string, string>("board", grid.ToString()), 
+                new Tuple<string, string>("intelligence", _intelligence.ToString()));
         }
         
         private static char[][] ParseGrid(string s)

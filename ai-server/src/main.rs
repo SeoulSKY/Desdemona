@@ -51,16 +51,27 @@ fn result(board: String, position: String, player: String) -> Result<String, Bad
     Ok(game.result(&action).board().to_string())
 }
 
-#[get("/actions?<board>")]
-fn actions(board: String) -> Result<String, BadRequest<String>> {
+#[get("/actions?<board>&<player>")]
+fn actions(board: String, player: String) -> Result<String, BadRequest<String>> {
     let board = Board::parse(board);
     if board.is_err() {
         return Err(BadRequest(Some("Invalid board".to_string())));
     }
+
+    let player = player.chars().next();
+    if player.is_none() {
+        return Err(BadRequest(Some("Invalid player".to_string())));
+    }
+
+    let player = Player::parse(player.unwrap());
+    if player.is_err() {
+        return Err(BadRequest(Some("Invalid player".to_string())));
+    }
+    let player = player.unwrap();
     
-    let game = Game::parse(board.unwrap(), Player::Human);
+    let game = Game::parse(board.unwrap(), player);
     Ok(Value::Array(
-        game.actions(Player::Human)
+        game.actions(player)
             .map(|a| Value::String(a.to_string()))
             .collect_vec()
     ).to_string())
