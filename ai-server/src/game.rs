@@ -41,8 +41,8 @@ impl Player {
     /// Returns the corresponding disk of this player
     pub fn disk(&self) -> Disk {
         match *self {
-            Bot => Dark,
-            Human => Light,
+            Bot => Light,
+            Human => Dark,
         } 
     }
 }
@@ -235,10 +235,10 @@ impl Game {
                 .sum::<i32>()
         ) + MOBILITY_WEIGHT * (
             self.actions(Bot)
-                .count() -
+                .count() as i32 -
             self.actions(Human)
-                .count()
-        ) as i32
+                .count() as i32
+        )
     }
 }
 

@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TilePressed
+  m_Name: Activated
   m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_ValidKeywords: []
   m_InvalidKeywords: []
@@ -75,6 +75,6 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.11372546, g: 0.50980395, b: 0.21960783, a: 1}
-    - _EmissionColor: {r: 0.00036764707, g: 0.010539216, b: 0.0012254902, a: 1}
+    - _Color: {r: 0.9433962, g: 0.9319903, b: 0.37824848, a: 1}
+    - _EmissionColor: {r: 0.95942014, g: 0.9622642, b: 0.37673548, a: 1}
   m_BuildTextureStacks: []

@@ -13,6 +13,21 @@ mod errors;
 mod game;
 mod bot;
 
+
+fn serialize_result(game: &Game) -> Value {
+    let mut json = json!({
+        "board": game.board().to_string(),
+    });
+
+    if game.is_over() {
+        json["winner"] = serde_json::to_value(game.winner().map(|p| p.to_string()))
+            .unwrap_or_else(|_| Value::Null);
+    }
+    
+    json
+}
+
+
 #[get("/")]
 fn index() -> &'static str {
     "Hello World!"
@@ -47,8 +62,10 @@ fn result(board: String, position: String, player: String) -> Result<String, Bad
     if !game.actions(player).contains(&action) {
         return Err(BadRequest(Some("Invalid action for the given player".to_string())));
     }
+
+    let game = game.result(&action);
     
-    Ok(game.result(&action).board().to_string())
+    Ok(serialize_result(&game).to_string())
 }
 
 #[get("/actions?<board>&<player>")]
@@ -85,22 +102,23 @@ fn decide(board: String, intelligence: u32) -> Result<String, BadRequest<String>
         return Err(BadRequest(Some("Invalid board".to_string())));
     }
     
-    let decision = bot.decide(Game::parse(board.unwrap(), Player::Bot));
-    if decision.is_err() {
-        return Err(BadRequest(Some("No actions are available for the AI from the given board".to_string())));
+    let game = Game::parse(board.unwrap(), Player::Bot);
+    
+    let decision = bot.decide(&game);
+    if decision.is_err() { // No available actions
+        let json = json!({
+            "decision": Value::Null,
+            "result": serialize_result(&game),
+        });
+        return Ok(json.to_string());
     }
     
     let (action, game) = decision.unwrap();
     
-    let mut json = json!({
+    let json = json!({
         "decision": action.to_string(),
-        "result": game.board().to_string(),
+        "result": serialize_result(&game),
     });
-    
-    if game.is_over() {
-        json["winner"] = serde_json::to_value(game.winner().map(|p| p.to_string()))
-            .unwrap_or_else(|_| Value::Null);
-    }
     
     Ok(json.to_string())
 }

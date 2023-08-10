@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 namespace Play
@@ -25,39 +27,51 @@ namespace Play
         {
             yield return bot.InitialBoard(response =>
             {
-                _grid.Enumerate((i, j, tile) =>
+                foreach (var (i, j, tile) in _grid.Enumerate())
                 {
                     if (!DiskColorMethods.CanParse(response[i][j]))
                     {
-                        return;
+                        continue;
                     }
                     tile.PlaceDisk(DiskColorMethods.Parse(response[i][j]));
-                });
+                }
             });
+            
+            UpdateActiveTiles();
         }
         
         private IEnumerator OnDiskPlaced(Tile tile)
         {
-            yield return bot.Result(_grid, Player.Human, tile, UpdateGrid);
-            yield return new WaitForSeconds(1);
-            yield return bot.Decide(_grid, (decision, result, winner) =>
+            if (!tile.CanPlaceDisk)
             {
-                decision.PlaceDisk(Player.Bot.Disk());
-                UpdateGrid(result);
+                yield break;
+            }
 
-                if (!winner.HasValue)
+            foreach (var t in _grid.Tiles())
+            {
+                t.CanPlaceDisk = false;
+            }
+
+            yield return bot.Result(_grid, Player.Human, tile, UpdateGrid, OnGameOver);
+            yield return new WaitForSeconds(1);
+            yield return bot.Decide(_grid, (decision, result) =>
+            {
+                if (decision == null)
                 {
-                    return;
+                    Debug.Log("AI has no actions to take this turn");
                 }
-                
-                Debug.Log("Game over");
-                Debug.Log(PlayerMethods.CanParse(winner.Value) ? $"Winner: {PlayerMethods.Parse(winner.Value)}" : "Winner: Draw");
-            });
+                else
+                {
+                    decision.PlaceDisk(Player.Bot.Disk());
+                }
+                UpdateGrid(result);
+                UpdateActiveTiles();
+            }, OnGameOver);
         }
         
         private void UpdateGrid(char[][] newGrid)
         {
-            _grid.Enumerate((i, j, current) =>
+            foreach (var (i, j, current) in _grid.Enumerate())
             {
                 if (!DiskColorMethods.CanParse(newGrid[i][j]))
                 {
@@ -65,7 +79,7 @@ namespace Play
                     {
                         current.ClearDisk();
                     }
-                    return;
+                    continue;
                 }
                     
                 var diskColor = DiskColorMethods.Parse(newGrid[i][j]);
@@ -78,7 +92,26 @@ namespace Play
                 {
                     current.Disk.Flip();
                 }
+            }
+        }
+
+        private void UpdateActiveTiles()
+        {
+            var coroutine = bot.Actions(_grid, actions =>
+            {
+                foreach (var tile in _grid.Tiles())
+                {
+                    tile.CanPlaceDisk = actions.Contains(tile);
+                }
             });
+
+            StartCoroutine(coroutine);
+        }
+
+        private static void OnGameOver(Player? winner)
+        {
+            Debug.Log("Game over");
+            Debug.Log(winner.HasValue ? $"Winner: {winner}" : "Winner: Draw");
         }
     }
 }

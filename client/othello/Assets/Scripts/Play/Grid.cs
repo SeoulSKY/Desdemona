@@ -1,6 +1,10 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Play
@@ -34,25 +38,56 @@ namespace Play
         }
 
         /// <summary>
-        /// Enumerate each tile in the grid
+        /// Enumerate each tile in this grid
         /// </summary>
-        /// <param name="callback">The callback for each tile</param>
-        public void Enumerate(Action<uint, uint, Tile> callback)
+        public IEnumerable<Tuple<uint, uint, Tile>> Enumerate()
         {
             for (uint i = 0; i < Size; i++)
             {
                 for (uint j = 0; j < Size; j++)
                 {
-                    callback(i, j, _tiles[i, j]);
+                    yield return new Tuple<uint, uint, Tile>(i, j, _tiles[i, j]);
                 }
             }
         }
-        
+
+        /// <summary>
+        /// Iterate each grid in this tile
+        /// </summary>
+        /// <returns>The iterator</returns>
+        public IEnumerable<Tile> Tiles()
+        {
+            var enumerator = _tiles.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                yield return enumerator.Current as Tile;
+            }
+        }
+
+        /// <summary>
+        /// Returns the tile with the given tile name
+        /// </summary>
+        /// <param name="tileName">The name of the tile to find</param>
+        /// <returns>The target tile or null if not found</returns>
+        /// <exception cref="ArgumentException">When the tile with the given name is not found</exception>>
+        public Tile GetTile(string tileName)
+        {
+            foreach (var tile in _tiles)
+            {
+                if (tile.name == tileName)
+                {
+                    return tile;
+                }
+            }
+
+            throw new ArgumentException($"Tile not found in this grid: {tileName}");
+        }
+
         private void PlaceTiles()
         {
             _tiles = new Tile[Size, Size];
-            
-            Enumerate((i, j, _) =>
+
+            foreach (var (i, j, _) in Enumerate())
             {
                 Tile current;
                 if (i == 0 && j == 0)
@@ -77,9 +112,9 @@ namespace Play
 
                 current.OnDiskPlaced += Lambda;
                 _tiles[i, j] = current;
-            });
+            }
         }
-        
+
         /// <summary>
         /// Convert this object to a string representation
         /// </summary>

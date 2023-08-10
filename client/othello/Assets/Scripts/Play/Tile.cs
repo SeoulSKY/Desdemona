@@ -14,6 +14,22 @@ namespace Play
         [Tooltip("The material that the tile will have when the mouse point is pressed")]
         [SerializeField] private Material onMouseDownMaterial;
 
+        [Tooltip("The material that this tile will have when it's activated")]
+        [SerializeField] private Material onActivatedMaterial;
+
+        private bool _canPlaceDisk;
+        public bool CanPlaceDisk
+        {
+            get
+            {
+                return _canPlaceDisk;
+            }
+            set
+            {
+                _canPlaceDisk = value;
+                GetComponent<MeshRenderer>().materials = _canPlaceDisk ? new[] { onActivatedMaterial } : new Material[] { };
+            }
+        }
 
         /// <summary>
         /// A character that represents the empty tile
@@ -79,19 +95,34 @@ namespace Play
 
         private void OnMouseEnter()
         {
-            GetComponent<MeshRenderer>().material = onMouseEnterMaterial;
+            GetComponent<Renderer>().material = CanPlaceDisk ? onActivatedMaterial : onMouseEnterMaterial;
+
+            if (Disk != null || !CanPlaceDisk)
+            {
+                return;
+            }
+            
+            _disk.gameObject.SetActive(true);
+            _disk.Color = Player.Human.Disk();
         }
 
         private void OnMouseExit()
         {
-            GetComponent<MeshRenderer>().materials = new Material[]{};
+            GetComponent<Renderer>().materials = CanPlaceDisk ? new []{onActivatedMaterial} : new Material[]{};
+
+            if (Disk != null || !CanPlaceDisk)
+            {
+                return;
+            }
+            
+            _disk.gameObject.SetActive(false);
         }
 
         private void OnMouseDown()
         {
-            GetComponent<MeshRenderer>().material = onMouseDownMaterial;
+            GetComponent<Renderer>().material = onMouseDownMaterial;
         }
-        
+
         /// <summary>
         /// Convert this object to a string representation
         /// </summary>

@@ -103,7 +103,7 @@ namespace Play
             {
                 if (!gameObject.activeSelf)
                 {
-                    throw new InvalidOperationException("This gameObject must be active to set its color");
+                    throw new InvalidOperationException("This disk must be active to set its color");
                 }
 
                 if (_color == value)
