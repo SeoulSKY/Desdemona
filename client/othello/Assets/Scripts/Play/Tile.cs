@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -41,7 +43,7 @@ namespace Play
         [CanBeNull]
         public Disk Disk { get; private set; }
 
-        public delegate IEnumerator DiskPlaced(Tile tile);
+        public delegate UniTask DiskPlaced(Tile tile);
         public event DiskPlaced OnDiskPlaced;
 
         private void Awake()
@@ -85,12 +87,12 @@ namespace Play
             Debug.Log($"Cleared the disk at {name}");
         }
 
-        private IEnumerator OnMouseUpAsButton()
+        private async void OnMouseUpAsButton()
         {
             GetComponent<MeshRenderer>().materials = new Material[]{};
             OnMouseEnter();
             
-            yield return OnDiskPlaced?.Invoke(this);
+            await OnDiskPlaced?.Invoke(this).ToCoroutine();
         }
 
         private void OnMouseEnter()

@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Play
@@ -78,6 +80,7 @@ namespace Play
         private int _lightNoTransitionHash;
 
         private bool _isReady;
+        public bool IsFlipping { get; private set; }
 
         private void Awake()
         {
@@ -127,8 +130,31 @@ namespace Play
         /// </summary>
         public void Flip()
         {
+            IsFlipping = true;
             _animator.SetTrigger(Color == DiskColor.Dark ? _lightHash : _darkHash);
             _color = Color.Opposite();
+        }
+        
+        /// <summary>
+        /// Wait while this disk is flipping
+        /// </summary>
+        /// <returns></returns>
+        public async UniTask WaitWhileFlipping()
+        {
+            if (!IsFlipping)
+            {
+                throw new InvalidOperationException("This disk is not flipping currently");
+            }
+            await UniTask.WaitWhile(() => IsFlipping);
+        }
+        public void OnFlipStart()
+        {
+            IsFlipping = true;
+        }
+
+        public void OnFlipFinish()
+        {
+            IsFlipping = false;
         }
     }
 }

@@ -3,8 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
-using Unity.VisualScripting;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Play
@@ -24,7 +23,7 @@ namespace Play
         private const uint Size = 8;
         private Tile[,] _tiles;
 
-        public delegate IEnumerator DiskPlaced(Tile tile);
+        public delegate UniTask DiskPlaced(Tile tile);
         public event DiskPlaced OnDiskPlaced;
 
         private void Awake()
@@ -72,6 +71,11 @@ namespace Play
         /// <exception cref="ArgumentException">When the tile with the given name is not found</exception>>
         public Tile GetTile(string tileName)
         {
+            if (string.IsNullOrWhiteSpace(tileName))
+            {
+                throw new ArgumentException($"Given tile name is not valid: '{tileName}'");
+            }
+            
             foreach (var tile in _tiles)
             {
                 if (tile.name == tileName)
@@ -80,7 +84,7 @@ namespace Play
                 }
             }
 
-            throw new ArgumentException($"Tile not found in this grid: {tileName}");
+            throw new ArgumentException($"Tile not found in this grid: '{tileName}'");
         }
 
         private void PlaceTiles()
@@ -105,13 +109,25 @@ namespace Play
                 current.name = $"{i},{j}";
                 current.gameObject.SetActive(true);
 
-                IEnumerator Lambda(Tile tile)
+                async UniTask Lambda(Tile tile)
                 {
-                    yield return OnDiskPlaced?.Invoke(tile);
+                    await OnDiskPlaced?.Invoke(tile).ToCoroutine();
                 }
 
                 current.OnDiskPlaced += Lambda;
                 _tiles[i, j] = current;
+            }
+        }
+
+        /// <summary>
+        /// Wait while any of the disk in this grid is flipping
+        /// </summary>
+        /// <returns></returns>
+        public async UniTask WaitWhileFlipping()
+        {
+            foreach (var tile in Tiles().Where(t => t.Disk != null && t.Disk.IsFlipping))
+            {
+                await tile.Disk.WaitWhileFlipping();
             }
         }
 

@@ -1,6 +1,5 @@
 using System;
-using System.Collections;
-using System.Linq;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Play
@@ -17,34 +16,32 @@ namespace Play
             _grid = GetComponentInChildren<Grid>();
         }
         
-        private IEnumerator Start()
+        private async void Start()
         {
-            yield return InitializeBoard();
+            await InitializeBoard();
             _grid.OnDiskPlaced += OnDiskPlaced;
         }
 
-        private IEnumerator InitializeBoard()
+        private async UniTask InitializeBoard()
         {
-            yield return bot.InitialBoard(response =>
+            var response = await bot.InitialBoard();
+            foreach (var (i, j, tile) in _grid.Enumerate())
             {
-                foreach (var (i, j, tile) in _grid.Enumerate())
+                if (!DiskColorMethods.CanParse(response[i][j]))
                 {
-                    if (!DiskColorMethods.CanParse(response[i][j]))
-                    {
-                        continue;
-                    }
-                    tile.PlaceDisk(DiskColorMethods.Parse(response[i][j]));
+                    continue;
                 }
-            });
+                tile.PlaceDisk(DiskColorMethods.Parse(response[i][j]));
+            }
             
-            UpdateActiveTiles();
+            await UpdateActiveTiles();
         }
         
-        private IEnumerator OnDiskPlaced(Tile tile)
+        private async UniTask OnDiskPlaced(Tile tile)
         {
             if (!tile.CanPlaceDisk)
             {
-                yield break;
+                return;
             }
 
             foreach (var t in _grid.Tiles())
@@ -52,21 +49,36 @@ namespace Play
                 t.CanPlaceDisk = false;
             }
 
-            yield return bot.Result(_grid, Player.Human, tile, UpdateGrid, OnGameOver);
-            yield return new WaitForSeconds(1);
-            yield return bot.Decide(_grid, (decision, result) =>
+            var (board, isGameOver) = await bot.Result(_grid, Player.Human, tile, OnGameOver);
+            UpdateGrid(board);
+
+            if (isGameOver)
             {
-                if (decision == null)
-                {
-                    Debug.Log("AI has no actions to take this turn");
-                }
-                else
-                {
-                    decision.PlaceDisk(Player.Bot.Disk());
-                }
-                UpdateGrid(result);
-                UpdateActiveTiles();
-            }, OnGameOver);
+                return;
+            }
+            
+            await _grid.WaitWhileFlipping();
+            await Decide();
+        }
+
+        private async UniTask Decide()
+        {
+            var (decision, result, isGameOver) = await bot.Decide(_grid, OnGameOver);
+            if (isGameOver)
+            {
+                return;
+            }
+            
+            if (decision == null)
+            {
+                Debug.Log("AI has no actions to take this turn");
+            }
+            else
+            {
+                decision.PlaceDisk(Player.Bot.Disk());
+            }
+            UpdateGrid(result);
+            await UpdateActiveTiles();
         }
         
         private void UpdateGrid(char[][] newGrid)
@@ -95,17 +107,19 @@ namespace Play
             }
         }
 
-        private void UpdateActiveTiles()
+        private async UniTask UpdateActiveTiles()
         {
-            var coroutine = bot.Actions(_grid, actions =>
+            var actions = await bot.Actions(_grid);
+            if (actions.Count == 0)
             {
-                foreach (var tile in _grid.Tiles())
-                {
-                    tile.CanPlaceDisk = actions.Contains(tile);
-                }
-            });
-
-            StartCoroutine(coroutine);
+                Debug.Log("Human has no actions to take this turn");
+                await Decide();
+            }
+            
+            foreach (var tile in _grid.Tiles())
+            {
+                tile.CanPlaceDisk = actions.Contains(tile);
+            }
         }
 
         private static void OnGameOver(Player? winner)

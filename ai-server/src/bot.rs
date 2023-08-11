@@ -27,7 +27,7 @@ impl Bot {
     /// 
     /// Pre-conditions:
     /// * self.game.current_player() == Player::Bot
-    pub fn decide(&mut self, game: Game) -> Result<(Action, Game), Error> {
+    pub fn decide(&mut self, game: &Game) -> Result<(Action, Game), Error> {
         assert_eq!(self.game.current_player(), Player::Bot);
         
         let mut bot_best = i32::MIN;
