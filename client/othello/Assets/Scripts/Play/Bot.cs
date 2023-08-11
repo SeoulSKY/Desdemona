@@ -8,13 +8,15 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json.Linq;
+using UnityEngine.Assertions;
 
 namespace Play
 {
     public class Bot : MonoBehaviour
     {
+        [SerializeField] private uint intelligence = 1;
+
         private string _host;
-        private uint _intelligence = 1;
 
         private void Awake()
         {
@@ -57,9 +59,9 @@ namespace Play
         /// <param name="grid">The grid to apply</param>
         /// <param name="player">The current player</param>
         /// <param name="tile">The tile to place a disk</param>
-        /// <param name="callback">The callback to be called with the game is over</param>
-        /// <returns>The resulted board</returns>
-        public async UniTask<Tuple<char[][], bool>> Result(Grid grid, Player player, Tile tile, Action<Player?> callback)
+        /// <param name="onGameOver">The callback to be called with the game is over</param>
+        /// <returns>The resulted board and whether the game is over or not</returns>
+        public async UniTask<Tuple<char[][], bool>> Result(Grid grid, Player player, Tile tile, Action<Player?> onGameOver)
         {
             var json = await SendGet("result",
                 new Tuple<string, string>("board", grid.ToString()),
@@ -67,7 +69,7 @@ namespace Play
                 new Tuple<string, string>("position", tile.name));
             
             var response = JObject.Parse(json);
-            HandleGameOver(response, callback);
+            HandleGameOver(response, onGameOver);
 
             return new Tuple<char[][], bool>(
                 ParseGrid((string) response["board"]), 
@@ -82,28 +84,31 @@ namespace Play
                 new Tuple<string, string>("player", Player.Human.ToChar().ToString()));
             
             var actions = JsonConvert.DeserializeObject<HashSet<string>>(json);
-            Debug.Assert(actions != null, "Invalid format of Json from the server");
+            Assert.IsNotNull(actions, "Invalid format of Json from the server");
+            
             return grid.GetComponentsInChildren<Tile>()
                 .Where(t => actions.Contains(t.name))
-                .ToList();
+                .ToHashSet();
         }
         
         /// <summary>
         /// Returns the decision of the AI from the given grid
         /// </summary>
         /// <param name="grid">The grid to decide the next action of the AI</param>
-        /// <param name="callback">The method to be called when the game is over</param>
-        /// <returns></returns>
-        public async UniTask<Tuple<Tile, char[][], bool>> Decide(Grid grid, Action<Player?> callback)
+        /// <param name="onGameOver">The method to be called when the game is over</param>
+        /// <returns>The selected tile to place a disk from the AI, the resulted board and weather the game is over or not</returns>
+        public async UniTask<Tuple<Tile, char[][], bool>> Decide(Grid grid, Action<Player?> onGameOver)
         {
             var json = await SendGet("decide", 
                 new Tuple<string, string>("board", grid.ToString()), 
-                new Tuple<string, string>("intelligence", _intelligence.ToString())
+                new Tuple<string, string>("intelligence", intelligence.ToString())
                 );
 
             var response = JObject.Parse(json);
-            HandleGameOver(response["result"], callback);
-            
+            Assert.IsNotNull(response["result"], "Invalid format of Json from the server");
+
+            HandleGameOver(response["result"], onGameOver);
+
             return new Tuple<Tile, char[][], bool>(
                 string.IsNullOrEmpty((string) response["decision"]) ? null : grid.GetTile((string) response["decision"]),
                 ParseGrid((string) response["result"]["board"]),
@@ -116,14 +121,14 @@ namespace Play
             return result["winner"] != null;
         }
 
-        private static void HandleGameOver(JToken result, Action<Player?> callback)
+        private static void HandleGameOver(JToken result, Action<Player?> onGameOver)
         {
             if (!IsGameOver(result))
             {
                 return;
             }
             
-            callback(string.IsNullOrEmpty((string) result["winner"]) ? 
+            onGameOver(string.IsNullOrEmpty((string) result["winner"]) ? 
                 null : 
                 PlayerMethods.Parse((char) result["winner"])
                 );
