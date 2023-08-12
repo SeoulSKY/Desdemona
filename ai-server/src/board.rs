@@ -1,5 +1,6 @@
 use std::fmt;
 use std::fmt::{Display, Formatter};
+
 use itertools::Itertools;
 
 use Direction::{East, North, NorthEast, NorthWest, South, SouthEast, SouthWest, West};
@@ -120,6 +121,7 @@ impl Position {
     /// Returns the direction towards the target
     /// Pre-conditions:
     /// * self != target
+    #[cfg(test)]
     pub fn direction(&self, target: &Position) -> Direction {
         assert_ne!(self, target);
         
@@ -271,6 +273,7 @@ impl Board {
     /// Returns the neighbours of the given position
     /// Pre-conditions:
     /// * pos.is_inbound()
+    #[cfg(test)]
     pub fn neighbours(&self, pos: &Position) -> impl Iterator<Item=Position> {
         assert!(pos.is_inbound());
         

@@ -9,6 +9,9 @@ use crate::game::Player::{Bot, Human};
 pub const BOT_CHAR: char = 'B';
 pub const HUMAN_CHAR: char = 'H';
 
+pub const MAX_BEST_EVALUATION: i32 = i32::MAX;
+pub const MIN_BEST_EVALUATION: i32 = i32::MIN;
+
 const PLACEMENT_WEIGHT: i32 = 1;
 const MOBILITY_WEIGHT: i32 = 1;
 
@@ -120,16 +123,34 @@ impl Game {
 
     /// Returns the possible actions of the given player
     pub fn actions(&self, player: Player) -> impl Iterator<Item=Action> + '_ {
-        self.board.positions(player.disk())
-            .flat_map(|pos| {
-                self.board.neighbours(&pos)
-                    .map(move |neighbour| (pos.direction(&neighbour), neighbour))
-            })
-            .filter(move |(_, neighbour)| self.board.disk(neighbour) ==
-                Some(player.opponent().disk()))
-            .flat_map(|(dir, neighbour)| self.board.neighbour(&neighbour, dir))
-            .filter(|pos| self.board.disk(pos).is_none())
-            .map(move |pos| Action{player, placement: pos})
+        let mut actions = Vec::new();
+        
+        for position in self.board.positions(player.disk()) {
+            for direction in Direction::all() {
+                let mut distance = 1;
+                let mut walker = self.board.neighbour(&position, direction);
+                
+                while walker.is_some() {
+                    let disk =  self.board.disk(walker.as_ref().unwrap());
+                    
+                    if disk.is_none() {
+                        if distance > 1 {
+                            actions.push(Action { player, placement: walker.unwrap() });
+                        }
+                        break;
+                    }
+
+                    if disk.unwrap() != player.opponent().disk() {
+                        break;
+                    }
+
+                    distance += 1;
+                    walker = self.board.neighbour(&walker.unwrap(), direction);
+                }
+            }
+        }
+        
+        actions.into_iter()
     }
     
     
@@ -166,7 +187,7 @@ impl Game {
         }
 
         game.current_player = action.player.opponent();
-        if self.is_over() {
+        if game.is_over() {
             game.set_winner();
         }
         game
@@ -214,8 +235,8 @@ impl Game {
         assert!(self.is_over());
         
         match self.winner {
-            Some(Bot) => i32::MAX,
-            Some(_) => i32::MIN,
+            Some(Bot) => MAX_BEST_EVALUATION,
+            Some(_) => MIN_BEST_EVALUATION,
             None => 0,
         }
     }
@@ -246,27 +267,40 @@ impl Game {
 mod tests {
     use itertools::Itertools;
 
-    use crate::board::BOARD_SIZE;
-    use crate::board::Disk::{Dark, Light};
+    use crate::board::{Board, BOARD_SIZE};
     use crate::board::Position;
     use crate::game::{Action, Game};
-    use crate::game::Player::Bot;
+    use crate::game::Player::{Bot, Human};
 
     #[test]
     fn actions() {
         let game = Game::new();
         
-        let get_result = || -> Vec<String> {
+        let get_result = |game: Game| -> Vec<String> {
             game.actions(Bot)
                 .map(|action| action.placement.to_string())
                 .collect()
         };
         
-        assert_eq!(get_result().into_iter().sorted().collect_vec(),
-                   vec!["E3", "F4", "C5", "D6"].into_iter()
+        assert_eq!(get_result(game).into_iter().sorted().collect_vec(),
+                   vec!["2,3", "3,2", "4,5", "5,4"].into_iter()
                        .map(|s| s.to_string())
                        .sorted()
                        .collect_vec());
+        
+        let mut board = Board::new();
+        board.clear();
+        for i in 1..BOARD_SIZE-1 {
+            board.place(Human.disk(), &Position::new(i, 0)).unwrap();
+        }
+        board.place(Bot.disk(), &Position::new(BOARD_SIZE-1, 0)).unwrap();
+        
+        let game = Game::parse(board, Bot);
+        assert_eq!(get_result(game).into_iter().sorted().collect_vec(),
+                   vec!["0,0"].into_iter()
+                       .map(|s| s.to_string())
+                       .sorted()
+                       .collect_vec())
     }
     
     #[test]
@@ -274,13 +308,13 @@ mod tests {
         let mut game = Game::new();
 
         for j in 1..BOARD_SIZE {
-            game.board.place(Light, &Position::new(0, j)).unwrap()
+            game.board.place(Human.disk(), &Position::new(0, j)).unwrap()
         }
         game.board.flip(&Position::new(0, BOARD_SIZE - 1)).unwrap();
         
         let mut game = game.result(&Action{player: Bot, placement: Position::new(0, 0)});
         for j in 0..BOARD_SIZE {
-            assert_eq!(game.board.disk(&Position::new(0, j)), Some(Dark))
+            assert_eq!(game.board.disk(&Position::new(0, j)), Some(Bot.disk()))
         }
         
         // -------------------------
@@ -288,13 +322,13 @@ mod tests {
         game.board.clear();
 
         for i in 1..BOARD_SIZE {
-            game.board.place(Light, &Position::new(i, i)).unwrap()
+            game.board.place(Human.disk(), &Position::new(i, i)).unwrap()
         }
         game.board.flip(&Position::new(BOARD_SIZE - 1, BOARD_SIZE - 1)).unwrap();
 
         let game = game.result(&Action{player: Bot, placement: Position::new(0, 0)});
         for i in 0..BOARD_SIZE {
-            assert_eq!(game.board.disk(&Position::new(i, i)), Some(Dark))
+            assert_eq!(game.board.disk(&Position::new(i, i)), Some(Bot.disk()))
         }
     }
 }

@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::errors::Error;
 use crate::errors::Error::InvalidArgument;
-use crate::game::{Action, Game};
+use crate::game::{Action, Game, MAX_BEST_EVALUATION, MIN_BEST_EVALUATION};
 use crate::game::Player;
 
 pub struct Bot {
@@ -30,8 +30,8 @@ impl Bot {
     pub fn decide(&mut self, game: &Game) -> Result<(Action, Game), Error> {
         assert_eq!(self.game.current_player(), Player::Bot);
         
-        let mut bot_best = i32::MIN;
-        let human_best = i32::MAX;
+        let mut bot_best = MIN_BEST_EVALUATION;
+        let human_best = MAX_BEST_EVALUATION;
         
         let mut minimax_value = bot_best;
         let mut best_action= Action::default();
