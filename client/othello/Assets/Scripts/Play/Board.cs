@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -13,6 +12,11 @@ namespace Play
         [SerializeField] private Bot bot;
         
         private Grid _grid;
+        
+        /// <summary>
+        /// The duration to wait in seconds until the next flip animation starts for further disk
+        /// </summary>
+        private const float FlipBreakDuration = 0.2f;
 
         private void Awake()
         {
@@ -119,11 +123,11 @@ namespace Play
             {
                 if (distance > prevDistance)
                 {
-                    await UniTask.WaitForSeconds(0.2f);
+                    await UniTask.WaitForSeconds(FlipBreakDuration);
                 }
                 
-                Assert.IsNotNull(tile.Disk);
                 Debug.Log($"Flipping {tile.name}");
+                Assert.IsNotNull(tile.Disk);
                 tile.Disk.Flip();
 
                 prevDistance = distance;
