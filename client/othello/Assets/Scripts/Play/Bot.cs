@@ -31,8 +31,10 @@ namespace Play
 
         private async UniTask<string> SendGet(string endPoint, params Tuple<string, string>[] parameters)
         {
-            using (var request = UnityWebRequest.Get(Url(endPoint, parameters)))
+            var url = Url(endPoint, parameters);
+            using (var request = UnityWebRequest.Get(url))
             {
+                Debug.Log($"Sending GET to {url}");
                 await request.SendWebRequest();
                 if (request.result != UnityWebRequest.Result.Success)
                 {
@@ -58,15 +60,15 @@ namespace Play
         /// </summary>
         /// <param name="grid">The grid to apply</param>
         /// <param name="player">The current player</param>
-        /// <param name="tile">The tile to place a disk</param>
+        /// <param name="position">The position to place a disk</param>
         /// <param name="onGameOver">The callback to be called with the game is over</param>
         /// <returns>The resulted board and whether the game is over or not</returns>
-        public async UniTask<Tuple<char[][], bool>> Result(Grid grid, Player player, Tile tile, Action<Player?> onGameOver)
+        public async UniTask<Tuple<char[][], bool>> Result(Grid grid, Player player, Grid.Position position, Action<Player?> onGameOver)
         {
             var json = await SendGet("result",
                 new Tuple<string, string>("board", grid.ToString()),
                 new Tuple<string, string>("player", player.ToChar().ToString()),
-                new Tuple<string, string>("position", tile.name));
+                new Tuple<string, string>("position", position.ToString()));
             
             var response = JObject.Parse(json);
             HandleGameOver(response, onGameOver);
@@ -77,7 +79,7 @@ namespace Play
                 );
         }
 
-        public async UniTask<ICollection<Tile>> Actions(Grid grid)
+        public async UniTask<ICollection<Grid.Position>> Actions(Grid grid)
         {
             var json = await SendGet("actions", 
                 new Tuple<string, string>("board", grid.ToString()), 
@@ -85,10 +87,8 @@ namespace Play
             
             var actions = JsonConvert.DeserializeObject<HashSet<string>>(json);
             Assert.IsNotNull(actions, "Invalid format of Json from the server");
-            
-            return grid.GetComponentsInChildren<Tile>()
-                .Where(t => actions.Contains(t.name))
-                .ToHashSet();
+
+            return actions.Select(grid.Find).ToHashSet();
         }
         
         /// <summary>
@@ -96,8 +96,8 @@ namespace Play
         /// </summary>
         /// <param name="grid">The grid to decide the next action of the AI</param>
         /// <param name="onGameOver">The method to be called when the game is over</param>
-        /// <returns>The selected tile to place a disk from the AI, the resulted board and weather the game is over or not</returns>
-        public async UniTask<Tuple<Tile, char[][], bool>> Decide(Grid grid, Action<Player?> onGameOver)
+        /// <returns>The selected position to place a disk from the AI, the resulted board and weather the game is over or not</returns>
+        public async UniTask<Tuple<Grid.Position, char[][], bool>> Decide(Grid grid, Action<Player?> onGameOver)
         {
             var json = await SendGet("decide", 
                 new Tuple<string, string>("board", grid.ToString()), 
@@ -109,8 +109,8 @@ namespace Play
 
             HandleGameOver(response["result"], onGameOver);
 
-            return new Tuple<Tile, char[][], bool>(
-                string.IsNullOrEmpty((string) response["decision"]) ? null : grid.GetTile((string) response["decision"]),
+            return new Tuple<Grid.Position, char[][], bool>(
+                string.IsNullOrEmpty((string) response["decision"]) ? null : grid.Find((string) response["decision"]),
                 ParseGrid((string) response["result"]["board"]),
                 IsGameOver(response["result"])
                 );

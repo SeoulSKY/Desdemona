@@ -308,13 +308,13 @@ mod tests {
         let mut game = Game::new();
 
         for j in 1..BOARD_SIZE {
-            game.board.place(Human.disk(), &Position::new(0, j)).unwrap()
+            game.board.place(Human.disk(), &Position::new(0, j)).unwrap();
         }
         game.board.flip(&Position::new(0, BOARD_SIZE - 1)).unwrap();
         
         let mut game = game.result(&Action{player: Bot, placement: Position::new(0, 0)});
         for j in 0..BOARD_SIZE {
-            assert_eq!(game.board.disk(&Position::new(0, j)), Some(Bot.disk()))
+            assert_eq!(game.board.disk(&Position::new(0, j)), Some(Bot.disk()));
         }
         
         // -------------------------

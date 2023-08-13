@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Play
 {
@@ -37,8 +40,9 @@ namespace Play
             await UpdateActiveTiles();
         }
         
-        private async UniTask OnDiskPlaced(Tile tile)
+        private async UniTask OnDiskPlaced(Grid.Position position)
         {
+            var tile = _grid.Tile(position);
             if (!tile.CanPlaceDisk)
             {
                 return;
@@ -49,15 +53,14 @@ namespace Play
                 t.CanPlaceDisk = false;
             }
 
-            var (board, isGameOver) = await bot.Result(_grid, Player.Human, tile, OnGameOver);
-            UpdateGrid(board);
+            var (board, isGameOver) = await bot.Result(_grid, Player.Human, position, OnGameOver);
+            await UpdateGrid(board, position);
 
             if (isGameOver)
             {
                 return;
             }
             
-            await _grid.WaitWhileFlipping();
             await Decide();
         }
 
@@ -75,15 +78,16 @@ namespace Play
             }
             else
             {
-                decision.PlaceDisk(Player.Bot.Disk());
+                _grid.Tile(decision).PlaceDisk(Player.Bot.Disk());
             }
-            UpdateGrid(result);
+            await UpdateGrid(result, decision);
             await UpdateActiveTiles();
         }
         
-        private void UpdateGrid(char[][] newGrid)
+        private async UniTask UpdateGrid(char[][] newGrid, Grid.Position start)
         {
-            foreach (var (i, j, current) in _grid.Enumerate())
+            var flipping = new List<Tuple<uint, Tile>>();
+            foreach (var (i, j, current) in _grid.Enumerate(start))
             {
                 if (!DiskColorMethods.CanParse(newGrid[i][j]))
                 {
@@ -102,9 +106,30 @@ namespace Play
                 } 
                 else if (current.Disk.Color != diskColor)
                 {
-                    current.Disk.Flip();
+                    flipping.Add( new Tuple<uint, Tile>(
+                        start.Distance(new Grid.Position(i, j)),
+                        current
+                        )
+                    );
                 }
             }
+
+            uint prevDistance = 1;
+            foreach (var (distance, tile) in flipping.OrderBy(t => t.Item1))
+            {
+                if (distance > prevDistance)
+                {
+                    await UniTask.WaitForSeconds(0.2f);
+                }
+                
+                Assert.IsNotNull(tile.Disk);
+                Debug.Log($"Flipping {tile.name}");
+                tile.Disk.Flip();
+
+                prevDistance = distance;
+            }
+            
+            await _grid.WaitWhileFlipping();
         }
 
         private async UniTask UpdateActiveTiles()
@@ -118,7 +143,7 @@ namespace Play
             
             foreach (var tile in _grid.Tiles())
             {
-                tile.CanPlaceDisk = actions.Contains(tile);
+                tile.CanPlaceDisk = actions.Contains(Grid.Position.Parse(tile));
             }
         }
 

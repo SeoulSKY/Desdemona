@@ -9,6 +9,98 @@ namespace Play
 {
     public class Grid : MonoBehaviour
     {
+        public class Position
+        {
+            public uint Row { get; private set; }
+            public uint Col { get; private set; }
+
+            public Position(uint row, uint col)
+            {
+                if (row >= Size)
+                {
+                    throw new ArgumentException($"row must be less than {Size}. Given: {row}");
+                } 
+                if (col >= Size)
+                {
+                    throw new ArgumentException($"col must be less than {Size}. Given: {col}");
+                }
+                
+                Row = row;
+                Col = col;
+            }
+
+            private static Position NewUnchecked(uint row, uint col)
+            {
+                return new Position(0, 0)
+                {
+                    Row = row,
+                    Col = col,
+                };
+            }
+
+            private bool IsValid()
+            {
+                return Row < Size && Col < Size;
+            }
+            
+            /// <summary>
+            /// Returns the neighbour positions of this position
+            /// </summary>
+            /// <returns></returns>
+            public IEnumerable<Position> Neighbours()
+            {
+                return new []
+                { 
+                    NewUnchecked(Row - 1, Col - 1),
+                    NewUnchecked(Row - 1, Col),
+                    NewUnchecked(Row - 1, Col + 1),
+                    NewUnchecked(Row, Col - 1),
+                    NewUnchecked(Row, Col + 1),
+                    NewUnchecked(Row + 1, Col - 1),
+                    NewUnchecked(Row + 1, Col),
+                    NewUnchecked(Row + 1, Col + 1),
+                }.Where(p => p.IsValid());
+            }
+
+            /// <summary>
+            /// Calculate the Euclidean distance between this Position and the given one
+            /// </summary>
+            /// <param name="other">The other position</param>
+            /// <returns>The Euclidean distance</returns>
+            public uint Distance(Position other)
+            {
+                var rowDistance = Math.Abs((int) Row - (int) other.Row);
+                var colDistance = Math.Abs((int) Col - (int) other.Col);
+                return (uint) Math.Max(rowDistance, colDistance);
+            }
+
+            public override string ToString()
+            {
+                return $"{Row},{Col}";
+            }
+
+            public override int GetHashCode()
+            {
+                return ToString().GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is Position other && Row == other.Row && Col == other.Col;
+            }
+
+            /// <summary>
+            /// Parse the given tile into the corresponding position
+            /// </summary>
+            /// <param name="tile">The tile to parse</param>
+            /// <returns>The corresponding position</returns>
+            public static Position Parse(Tile tile)
+            {
+                var indexes = tile.name.Split(",").Select(uint.Parse).ToArray();
+                return new Position(indexes[0], indexes[1]);
+            }
+        }
+        
         /// <summary>
         /// The reference tile to spawn other remaining tiles
         /// </summary>
@@ -22,7 +114,7 @@ namespace Play
         private const uint Size = 8;
         private Tile[,] _tiles;
 
-        public delegate UniTask DiskPlaced(Tile tile);
+        public delegate UniTask DiskPlaced(Position position);
         public event DiskPlaced OnDiskPlaced;
 
         private void Awake()
@@ -50,6 +142,34 @@ namespace Play
         }
 
         /// <summary>
+        /// Enumerate each tile in a breath-search first manner
+        /// </summary>
+        /// <param name="from">The starting position of the enumeration</param>
+        public IEnumerable<Tuple<uint, uint, Tile>> Enumerate(Position from)
+        {
+            var queue = new Queue<Position>();
+            var visited = new HashSet<Position>();
+            queue.Enqueue(from);
+            visited.Add(from);
+
+            while (queue.Any())
+            {
+                var position = queue.Dequeue();
+                yield return new Tuple<uint, uint, Tile>(position.Row, position.Col, Tile(position));
+                
+                foreach (var neighbour in position.Neighbours())
+                {
+                    if (visited.Contains(neighbour))
+                    {
+                        continue;
+                    }
+                    visited.Add(neighbour);
+                    queue.Enqueue(neighbour);
+                }
+            }
+        }
+
+        /// <summary>
         /// Iterate each grid in this tile
         /// </summary>
         /// <returns>The iterator</returns>
@@ -63,29 +183,38 @@ namespace Play
         }
 
         /// <summary>
-        /// Returns the tile with the given tile name
+        /// Returns the tile from the given position
+        /// </summary>
+        /// <param name="position">The position of the tile</param>
+        /// <returns>The tile</returns>
+        public Tile Tile(Position position)
+        {
+            return _tiles[position.Row, position.Col];
+        }
+
+        /// <summary>
+        /// Find the position of the tile with the given name
         /// </summary>
         /// <param name="tileName">The name of the tile to find</param>
-        /// <returns>The target tile or null if not found</returns>
-        /// <exception cref="ArgumentException">When the tile with the given name is not found</exception>>
-        public Tile GetTile(string tileName)
+        /// <returns>The position</returns>
+        public Position Find(string tileName)
         {
             if (string.IsNullOrWhiteSpace(tileName))
             {
                 throw new ArgumentException($"Given tile name is not valid: '{tileName}'");
             }
             
-            foreach (var tile in _tiles)
+            foreach (var (i, j, tile) in Enumerate())
             {
                 if (tile.name == tileName)
                 {
-                    return tile;
+                    return new Position(i, j);
                 }
             }
 
             throw new ArgumentException($"Tile not found in this grid: '{tileName}'");
         }
-
+        
         private void PlaceTiles()
         {
             _tiles = new Tile[Size, Size];
@@ -103,14 +232,14 @@ namespace Play
                 }
 
                 var refPos = _referenceTile.transform.position;
-
                 current.transform.position = new Vector3(refPos.x + j * xTileDistance, refPos.y, refPos.z - i * zTileDistance);
-                current.name = $"{i},{j}";
+                
+                current.name = new Position(i, j).ToString();
                 current.gameObject.SetActive(true);
 
                 async UniTask Lambda(Tile tile)
                 {
-                    await OnDiskPlaced?.Invoke(tile).ToCoroutine();
+                    await OnDiskPlaced?.Invoke(Position.Parse(tile)).ToCoroutine();
                 }
 
                 current.OnDiskPlaced += Lambda;
@@ -129,7 +258,7 @@ namespace Play
                 await tile.Disk.WaitWhileFlipping();
             }
         }
-
+        
         /// <summary>
         /// Convert this object to a string representation
         /// </summary>
