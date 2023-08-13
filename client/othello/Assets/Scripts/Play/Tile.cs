@@ -2,7 +2,6 @@ using System;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace Play
 {
