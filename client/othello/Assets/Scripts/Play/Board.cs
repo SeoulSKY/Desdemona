@@ -115,7 +115,7 @@ namespace Play
             }
 
             uint prevDistance = 1;
-            foreach (var (distance, tile) in flipping.OrderBy(t => t.Item1))
+            foreach (var (distance, tile) in flipping)
             {
                 if (distance > prevDistance)
                 {
