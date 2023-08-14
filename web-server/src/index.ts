@@ -3,7 +3,7 @@ import compress from "compression";
 import pino from "pino";
 import dotenv from "dotenv";
 import path from "path";
-import * as fs from "fs";
+import fs from "fs";
 
 
 dotenv.config();
