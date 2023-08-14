@@ -41,11 +41,10 @@ export async function build() {
         await execAsync(`mv ${path.join(BUILD_PATH, "Build")} ${path.join(PROJECT_ROOT_PATH, "public")}`)
     }
 
-    logger.info("Cleaning the Build...")
+    logger.info("Cleaning the remaining files...")
     if (process.platform === "win32") {
         await execAsync(`Remove-Item -Path ${path.join(UNITY_PROJECT_PATH, "Builds")} -Recurse`)
     } else {
         await execAsync(`rm -rf ${path.join(UNITY_PROJECT_PATH, "Builds")}`)
     }
 }
-
