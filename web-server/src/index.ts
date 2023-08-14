@@ -11,7 +11,7 @@ export const logger = pino({
     transport: {
         target: "pino-pretty"
     },
-}, pino.destination({sync: true}))
+})
 
 export const PROJECT_ROOT_PATH = path.dirname(require.main?.path as string);
 
