@@ -85,7 +85,7 @@ namespace Play
                 new Tuple<string, string>("board", grid.ToString()), 
                 new Tuple<string, string>("player", Player.Human.ToChar().ToString()));
             
-            var actions = JsonConvert.DeserializeObject<HashSet<string>>(json);
+            var actions = JsonConvert.DeserializeObject<List<string>>(json);
             Assert.IsNotNull(actions, "Invalid format of Json from the server");
 
             return actions.Select(grid.Find).ToHashSet();

@@ -1,6 +1,9 @@
 #[macro_use] extern crate rocket;
 
 use itertools::Itertools;
+use rocket::fairing::{Fairing, Info, Kind};
+use rocket::http::Header;
+use rocket::{Request, Response};
 use rocket::response::status::BadRequest;
 use serde_json::{json, Value};
 
@@ -127,8 +130,28 @@ fn decide(board: String, intelligence: u32) -> Result<String, BadRequest<String>
 async fn main() -> Result<(), rocket::Error> {
     rocket::build()
         .mount("/", routes![index, initial_board, result, actions, decide])
+        .attach(CORS)
         .launch()
         .await?;
 
     Ok(())
+}
+
+pub struct CORS;
+
+#[rocket::async_trait]
+impl Fairing for CORS {
+    fn info(&self) -> Info {
+        Info {
+            name: "Add CORS headers to responses",
+            kind: Kind::Response
+        }
+    }
+
+    async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
+        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
+        response.set_header(Header::new("Access-Control-Allow-Methods", "GET"));
+        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
+        response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
+    }
 }
