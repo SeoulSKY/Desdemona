@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Play
 {
-    public class Grid : MonoBehaviour
+    public class BoardGrid : MonoBehaviour
     {
         public class Position
         {

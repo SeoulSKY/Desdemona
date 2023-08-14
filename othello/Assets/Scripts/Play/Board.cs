@@ -11,7 +11,7 @@ namespace Play
         [Tooltip("The game object for communicating with the AI server")]
         [SerializeField] private Bot bot;
         
-        private Grid _grid;
+        private BoardGrid _grid;
         
         /// <summary>
         /// The duration to wait in seconds until the next flip animation starts for further disk
@@ -20,7 +20,7 @@ namespace Play
 
         private void Awake()
         {
-            _grid = GetComponentInChildren<Grid>();
+            _grid = GetComponentInChildren<BoardGrid>();
         }
         
         private async void Start()
@@ -44,7 +44,7 @@ namespace Play
             await UpdateActiveTiles();
         }
         
-        private async UniTask OnDiskPlaced(Grid.Position position)
+        private async UniTask OnDiskPlaced(BoardGrid.Position position)
         {
             var tile = _grid.Tile(position);
             if (!tile.CanPlaceDisk)
@@ -88,7 +88,7 @@ namespace Play
             await UpdateActiveTiles();
         }
         
-        private async UniTask UpdateGrid(char[][] newGrid, Grid.Position start)
+        private async UniTask UpdateGrid(char[][] newGrid, BoardGrid.Position start)
         {
             var flipping = new List<Tuple<uint, Tile>>();
             foreach (var (i, j, current) in _grid.Enumerate(start))
@@ -111,7 +111,7 @@ namespace Play
                 else if (current.Disk.Color != diskColor)
                 {
                     flipping.Add( new Tuple<uint, Tile>(
-                        start.Distance(new Grid.Position(i, j)),
+                        start.Distance(new BoardGrid.Position(i, j)),
                         current
                         )
                     );
@@ -147,7 +147,7 @@ namespace Play
             
             foreach (var tile in _grid.Tiles())
             {
-                tile.CanPlaceDisk = actions.Contains(Grid.Position.Parse(tile));
+                tile.CanPlaceDisk = actions.Contains(BoardGrid.Position.Parse(tile));
             }
         }
 
