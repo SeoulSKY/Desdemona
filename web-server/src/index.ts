@@ -23,7 +23,12 @@ import {build} from "./unityBuilder";
 
 (async () => {
     if (!fs.existsSync(path.join("public", "Build"))) {
-        await build()
+        try {
+            await build()
+        } catch (e) {
+            logger.error(e);
+            process.exit(1);
+        }
     }
 
     app.listen(PORT, () => {
