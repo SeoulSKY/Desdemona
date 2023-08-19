@@ -3,12 +3,8 @@ import compress from "compression";
 import pino from "pino";
 import path from "path";
 import fs from "fs";
-import ip from "ip";
 import {duration} from "moment";
-import dotenv from "dotenv";
 
-
-dotenv.config();
 
 const HOST = "0.0.0.0";
 const PORT = 8080;
@@ -49,7 +45,6 @@ app.use(express.static("public"));
     }
 
     app.listen(PORT, HOST, () => {
-        const address = ip.address();
         logger.info(`Server is running on port: ${PORT}`);
     });
 })();
