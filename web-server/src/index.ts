@@ -3,9 +3,16 @@ import compress from "compression";
 import pino from "pino";
 import path from "path";
 import fs from "fs";
+import ip from "ip";
+import {duration} from "moment";
+import dotenv from "dotenv";
 
 
-const PORT = 8080
+dotenv.config();
+
+const HOST = "0.0.0.0";
+const PORT = 8080;
+const RETRY_INTERVAL = duration({second: 5});
 
 export const logger = pino({
     transport: {
@@ -17,21 +24,32 @@ export const PROJECT_ROOT_PATH = path.dirname(require.main?.path as string);
 
 const app = express();
 app.use(compress());
-app.use(express.static("public"))
+app.use(express.static("public"));
 
-import {build} from "./unityBuilder";
 
 (async () => {
+    if (!process.env.AI_SERVER_HOST) {
+        logger.error("Environment variable of 'AI_SERVER_HOST' is not set");
+        process.exit(1);
+    }
+
     if (!fs.existsSync(path.join("public", "Build"))) {
+        logger.error("Build not found. Run 'ts-node src/buildUnity.ts' in your local machine with unity installed");
+        process.exit(1);
+    }
+
+    while (true) {
         try {
-            await build()
+            await fetch(process.env.AI_SERVER_HOST as string, { method: "HEAD" });
+            break;
         } catch (e) {
-            logger.error(e);
-            process.exit(1);
+            logger.debug(`Couldn't get a response from ${process.env.AI_SERVER_HOST}. Retrying in ${RETRY_INTERVAL.asSeconds()} seconds...`)
+            await new Promise(r => setTimeout(r, RETRY_INTERVAL.asMilliseconds()));
         }
     }
 
-    app.listen(PORT, () => {
-        logger.info(`Server is running on port ${PORT}`);
+    app.listen(PORT, HOST, () => {
+        const address = ip.address();
+        logger.info(`Server is running on port: ${PORT}`);
     });
 })();

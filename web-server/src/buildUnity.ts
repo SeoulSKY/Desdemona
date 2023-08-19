@@ -3,26 +3,28 @@ import { exec } from "child_process";
 import path from "path";
 import moment, {duration} from "moment";
 
-const UNITY_PROJECT_PATH = path.join(PROJECT_ROOT_PATH, "..", "othello");
+const UNITY_PROJECT_PATH = path.join(PROJECT_ROOT_PATH, "..", "desdemona");
 const BUILD_PATH = path.join(UNITY_PROJECT_PATH, "Builds", "WebGL", "buildDefault");
 const UNITY_VERSION = "2022.3.7f1";
 
 
 function execAsync(command: string) {
     return new Promise((resolve, reject) => {
-        exec(command,(error, stdout) => {
+        exec(command,(error, stdout, stderr) => {
             if (error) {
                 reject(error);
             } else {
-                resolve(stdout);
+                resolve(stdout ?? stderr);
             }
         });
     });
 }
 
-export async function build() {
+async function build() {
     let unityPath;
-    if (process.platform === "win32") {
+    if (process.env.UNITY_PATH) {
+        unityPath = process.env.UNITY_PATH;
+    } else if (process.platform === "win32") {
         unityPath = `C:\\Program Files\\Unity\\Hub\\Editor\\${UNITY_VERSION}\\Editor\\Unity.exe`
     } else if (process.platform === "darwin") {
         unityPath = `/Applications/Unity/Hub/Editor/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity`
@@ -58,3 +60,12 @@ export async function build() {
     end = moment();
     logger.info(`Finished cleaning in ${duration(end.diff(start)).humanize()}`)
 }
+
+(async () => {
+    try {
+        await build()
+    } catch (e) {
+        logger.error(e);
+        process.exit(1);
+    }
+})();

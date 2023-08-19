@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  ai-server:
+    build: ./ai-server
+    container_name: ai-server
+    ports:
+      - "8000:8000"
+  web-server:
+    build: ./web-server
+    platform: linux/amd64
+    container_name: web-server
+    depends_on:
+     - ai-server
+    ports:
+     - "8080:8080"
+    environment:
+      - AI_SERVER_HOST=http://ai-server:8000
