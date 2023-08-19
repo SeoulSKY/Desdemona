@@ -1,0 +1,6 @@
+Assets/Plugins/** linguist-vendored
+
+*.mm linguist-vendored
+*.h linguist-vendored
+*.cginc linguist-vendored
+*.shader linguist-vendored
