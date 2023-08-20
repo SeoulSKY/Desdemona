@@ -6,6 +6,10 @@ Development in progress... Stay tuned!
 
 ![](https://github.com/SeoulSKY/Desdemona/assets/48105703/0acd74f3-2b42-4949-8c9e-f156ff72da08)
 
+## How to Play
+* Move the player with `WASD` keys on keyboard and look around with the mouse
+* Left-click the yellow tile to place a disk
+
 ## How to Build and Run
 
 ### Installation
