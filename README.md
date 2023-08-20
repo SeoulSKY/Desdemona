@@ -22,7 +22,8 @@ This application requires Docker, Docker compose, Node.js and Unity3D. Please in
 
 ### Build
 
-First, open the folder `desdemona` in Unity and close it. This will create the necessary files to build
+First, open the folder `desdemona` in Unity and close it. This will create the necessary files to build.
+
 Then, change the directory into the folder `web-server` and run the following commands:
 ```
 npm install
