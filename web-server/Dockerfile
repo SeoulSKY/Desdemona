@@ -1,5 +1,7 @@
 FROM node:18.17.0
 
+ENV DOCKER=1
+
 WORKDIR /app
 
 COPY . .

@@ -20,7 +20,7 @@ function execAsync(command: string) {
     });
 }
 
-async function build() {
+export async function build() {
     let unityPath;
     if (process.env.UNITY_PATH) {
         unityPath = process.env.UNITY_PATH;

@@ -9,11 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor", "A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniTask.Linq", "UniTask.Linq.csproj", "{2b1be935-902b-9b6d-8271-3d22ff82f69f}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CandyCoded.env", "CandyCoded.env.csproj", "{4b27ed64-4261-11a6-ad3c-2ce94cbfadbd}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "com.vanbassum.wakatime", "com.vanbassum.wakatime.csproj", "{5261e600-97d8-3265-5361-d0572bc8bb46}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CandyCoded.env.Editor", "CandyCoded.env.Editor.csproj", "{9eff0805-0c04-7d68-7a9a-0dd989a0931a}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniTask.TextMeshPro", "UniTask.TextMeshPro.csproj", "{4e267ce2-6b01-af96-99d7-1ab47ab36f0b}"
 EndProject
@@ -36,12 +32,8 @@ Global
 		{3c7e9ebc-6e5b-e0cd-e1d9-7accab435042}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2b1be935-902b-9b6d-8271-3d22ff82f69f}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2b1be935-902b-9b6d-8271-3d22ff82f69f}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4b27ed64-4261-11a6-ad3c-2ce94cbfadbd}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4b27ed64-4261-11a6-ad3c-2ce94cbfadbd}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5261e600-97d8-3265-5361-d0572bc8bb46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5261e600-97d8-3265-5361-d0572bc8bb46}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9eff0805-0c04-7d68-7a9a-0dd989a0931a}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9eff0805-0c04-7d68-7a9a-0dd989a0931a}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4e267ce2-6b01-af96-99d7-1ab47ab36f0b}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4e267ce2-6b01-af96-99d7-1ab47ab36f0b}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95b4d203-8513-6817-3123-0247f04a1a04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

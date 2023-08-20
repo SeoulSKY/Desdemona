@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using CandyCoded.env;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -20,7 +19,7 @@ namespace Play
 
         private void Awake()
         {
-            _host = env.variables["AI_SERVER_HOST"];
+            _host = "http://127.0.0.1:8000";
         }
 
         private string Url(string endPoint, params Tuple<string, string>[] parameters)

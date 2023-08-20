@@ -22,6 +22,7 @@ const app = express();
 app.use(compress());
 app.use(express.static("public"));
 
+import {build} from "./buildUnity";
 
 (async () => {
     if (!process.env.AI_SERVER_HOST) {
@@ -30,8 +31,12 @@ app.use(express.static("public"));
     }
 
     if (!fs.existsSync(path.join("public", "Build"))) {
-        logger.error("Build not found. Run 'ts-node src/buildUnity.ts' in your local machine with unity installed");
-        process.exit(1);
+        if (process.env.DOCKER) {
+            logger.error("Build not found. Run 'ts-node src/buildUnity.ts' in your local machine with unity installed");
+            process.exit(1);
+        } else {
+            await build();
+        }
     }
 
     while (true) {
