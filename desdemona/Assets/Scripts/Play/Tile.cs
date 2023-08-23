@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Play
@@ -13,9 +14,8 @@ namespace Play
         [Tooltip("The material that the tile will have when the mouse point is pressed")]
         [SerializeField] private Material onMouseDownMaterial;
 
-        [Tooltip("The material that this tile will have when it's activated")]
-        [SerializeField] private Material onActivatedMaterial;
-
+        private ParticleSystem _spawnHint;
+        
         private bool _canPlaceDisk;
         public bool CanPlaceDisk
         {
@@ -26,7 +26,16 @@ namespace Play
             set
             {
                 _canPlaceDisk = value;
-                GetComponent<MeshRenderer>().materials = _canPlaceDisk ? new[] { onActivatedMaterial } : new Material[] { };
+                _spawnHint.gameObject.SetActive(_canPlaceDisk);
+                
+                if (_canPlaceDisk)
+                {
+                    _spawnHint.Play();
+                }
+                else
+                {
+                    _spawnHint.Stop();
+                }
             }
         }
 
@@ -45,6 +54,7 @@ namespace Play
 
         private void Awake()
         {
+            _spawnHint = GetComponentInChildren<ParticleSystem>(true);
             _disk = GetComponentInChildren<Disk>(true);
             _disk.gameObject.SetActive(false);
             _disk.gameObject.GetComponent<Rigidbody>().useGravity = false;
@@ -91,13 +101,12 @@ namespace Play
 
         private async void OnMouseUpAsButton()
         {
-            GetComponent<MeshRenderer>().materials = new Material[]{};
             await OnDiskPlaced?.Invoke(this).ToCoroutine();
         }
 
         private void OnMouseEnter()
         {
-            GetComponent<Renderer>().material = CanPlaceDisk ? onActivatedMaterial : onMouseEnterMaterial;
+            GetComponent<Renderer>().material = onMouseEnterMaterial;
 
             if (Disk != null || !CanPlaceDisk)
             {
@@ -110,7 +119,7 @@ namespace Play
 
         private void OnMouseExit()
         {
-            GetComponent<Renderer>().materials = CanPlaceDisk ? new []{onActivatedMaterial} : new Material[]{};
+            GetComponent<Renderer>().materials = new Material[]{};
 
             if (Disk != null || !CanPlaceDisk)
             {
@@ -123,6 +132,11 @@ namespace Play
         private void OnMouseDown()
         {
             GetComponent<Renderer>().material = onMouseDownMaterial;
+        }
+
+        private void OnMouseUp()
+        {
+            OnMouseEnter();
         }
 
         /// <summary>

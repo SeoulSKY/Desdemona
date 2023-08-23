@@ -92,8 +92,19 @@ namespace Play
         /// </summary>
         [SerializeField] private AudioClip dropSound;
 
+        /// <summary>
+        /// The particle system to play when the disk spawns
+        /// </summary>
+        [SerializeField] private ParticleSystem spawnEffect;
+
+        /// <summary>
+        /// The particle system to play when the disk drops
+        /// </summary>
+        [SerializeField] private ParticleSystem dropEffect;
+
         private Rigidbody _rigidbody;
         private AudioSource _audioSource;
+        
 
         private bool _isReady;
         
@@ -145,6 +156,9 @@ namespace Play
             
             gameObject.SetActive(true);
             _audioSource.PlayOneShot(spawnSound);
+            
+            spawnEffect.gameObject.SetActive(true);
+            spawnEffect.Play();
             transform.localPosition += new Vector3(0, spawnHeight, 0);
         }
         
@@ -199,6 +213,9 @@ namespace Play
             IsSpawning = false;
             IsFlipping = false;
             _audioSource.PlayOneShot(dropSound);
+            
+            dropEffect.gameObject.SetActive(true);
+            dropEffect.Play();
         }
     }
 }
