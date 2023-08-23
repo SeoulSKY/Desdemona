@@ -8,8 +8,7 @@ namespace Play
 {
     public class Board : MonoBehaviour
     {
-        [Tooltip("The game object for communicating with the AI server")]
-        [SerializeField] private Bot bot;
+        private Bot _bot;
         
         private BoardGrid _grid;
         
@@ -20,6 +19,7 @@ namespace Play
 
         private void Awake()
         {
+            _bot = GetComponentInChildren<Bot>();
             _grid = GetComponentInChildren<BoardGrid>();
         }
         
@@ -31,7 +31,7 @@ namespace Play
 
         private async UniTask InitializeBoard()
         {
-            var response = await bot.InitialBoard();
+            var response = await _bot.InitialBoard();
             foreach (var (i, j, tile) in _grid.Enumerate())
             {
                 if (!DiskColorMethods.CanParse(response[i][j]))
@@ -57,7 +57,7 @@ namespace Play
                 t.CanPlaceDisk = false;
             }
 
-            var (board, isGameOver) = await bot.Result(_grid, Player.Human, position, OnGameOver);
+            var (board, isGameOver) = await _bot.Result(_grid, Player.Human, position, OnGameOver);
             await UpdateGrid(board, position);
 
             if (isGameOver)
@@ -70,7 +70,7 @@ namespace Play
 
         private async UniTask Decide()
         {
-            var (decision, result, isGameOver) = await bot.Decide(_grid, OnGameOver);
+            var (decision, result, isGameOver) = await _bot.Decide(_grid, OnGameOver);
             if (isGameOver)
             {
                 return;
@@ -84,6 +84,8 @@ namespace Play
             {
                 _grid.Tile(decision).PlaceDisk(Player.Bot.Disk());
             }
+            
+            await _grid.WaitWhileUpdating();
             await UpdateGrid(result, decision);
             await UpdateActiveTiles();
         }
@@ -117,6 +119,8 @@ namespace Play
                     );
                 }
             }
+            
+            await _grid.WaitWhileUpdating();
 
             uint prevDistance = 1;
             foreach (var (distance, tile) in flipping)
@@ -133,12 +137,12 @@ namespace Play
                 prevDistance = distance;
             }
             
-            await _grid.WaitWhileFlipping();
+            await _grid.WaitWhileUpdating();
         }
 
         private async UniTask UpdateActiveTiles()
         {
-            var actions = await bot.Actions(_grid);
+            var actions = await _bot.Actions(_grid);
             if (actions.Count == 0)
             {
                 Debug.Log("Human has no actions to take this turn");

@@ -47,8 +47,10 @@ namespace Play
         {
             _disk = GetComponentInChildren<Disk>(true);
             _disk.gameObject.SetActive(false);
+            _disk.gameObject.GetComponent<Rigidbody>().useGravity = false;
+            _disk.gameObject.GetComponent<Collider>().enabled = false;
         }
-
+        
         /// <summary>
         /// Place a disk on this tile
         /// </summary>
@@ -61,9 +63,11 @@ namespace Play
                 throw new InvalidOperationException($"Tile {name} is occupied by another disk");
             }
             
-            _disk.gameObject.SetActive(true);
+            _disk.gameObject.GetComponent<Rigidbody>().useGravity = true;
+            _disk.gameObject.GetComponent<Collider>().enabled = true;
+            _disk.Spawn(color);
+
             Disk = _disk;
-            _disk.Color = color;
 
             Debug.Log($"Placed {color} at {name}");
         }
@@ -80,6 +84,7 @@ namespace Play
             }
 
             Disk = null;
+            _disk.gameObject.GetComponent<Rigidbody>().useGravity = false;
             _disk.gameObject.SetActive(false);
             Debug.Log($"Cleared the disk at {name}");
         }
@@ -87,8 +92,6 @@ namespace Play
         private async void OnMouseUpAsButton()
         {
             GetComponent<MeshRenderer>().materials = new Material[]{};
-            OnMouseEnter();
-            
             await OnDiskPlaced?.Invoke(this).ToCoroutine();
         }
 
@@ -101,8 +104,8 @@ namespace Play
                 return;
             }
             
-            _disk.gameObject.SetActive(true);
             _disk.Color = Player.Human.Disk();
+            _disk.gameObject.SetActive(true);
         }
 
         private void OnMouseExit()

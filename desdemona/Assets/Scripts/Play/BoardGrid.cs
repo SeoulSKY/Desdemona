@@ -64,10 +64,10 @@ namespace Play
             }
 
             /// <summary>
-            /// Calculate the Euclidean distance between this Position and the given one
+            /// Calculate the shortest distance between this Position and the given one
             /// </summary>
             /// <param name="other">The other position</param>
-            /// <returns>The Euclidean distance</returns>
+            /// <returns>The distance</returns>
             public uint Distance(Position other)
             {
                 var rowDistance = Math.Abs((int) Row - (int) other.Row);
@@ -232,9 +232,7 @@ namespace Play
                     current = Instantiate(_referenceTile, transform);
                 }
 
-                var refPos = _referenceTile.transform.localPosition;
-                current.transform.localPosition = new Vector3(refPos.x + j * xTileDistance, refPos.y, refPos.z - i * zTileDistance);
-                
+                current.transform.localPosition += new Vector3(j * xTileDistance, 0, -i * zTileDistance);
                 current.name = new Position(i, j).ToString();
                 current.gameObject.SetActive(true);
 
@@ -249,15 +247,21 @@ namespace Play
         }
 
         /// <summary>
-        /// Wait while any of the disk in this grid is flipping
+        /// Wait while any of the disk in this grid is updating
         /// </summary>
         /// <returns></returns>
-        public async UniTask WaitWhileFlipping()
+        public async UniTask WaitWhileUpdating()
         {
             foreach (var tile in Tiles().Where(t => t.Disk != null && t.Disk.IsFlipping))
             {
                 Assert.IsNotNull(tile.Disk);
                 await tile.Disk.WaitWhileFlipping();
+            }
+            
+            foreach (var tile in Tiles().Where(t => t.Disk != null && t.Disk.IsSpawning))
+            {
+                Assert.IsNotNull(tile.Disk);
+                await tile.Disk.WaitWhileSpawning();
             }
         }
         
