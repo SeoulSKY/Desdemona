@@ -1,4 +1,6 @@
+use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
+use std::hash::{Hash};
 
 use crate::board::{Board, Direction, Disk, Position};
 use crate::board::Disk::{Dark, Light};
@@ -60,7 +62,7 @@ impl Display for Player {
 }
 
 
-#[derive(Default, PartialEq)]
+#[derive(Default, PartialEq, Hash, Eq)]
 pub struct Action {
     player: Player,
     placement: Position,
@@ -123,7 +125,7 @@ impl Game {
 
     /// Returns the possible actions of the given player
     pub fn actions(&self, player: Player) -> impl Iterator<Item=Action> + '_ {
-        let mut actions = Vec::new();
+        let mut actions = HashSet::new();
         
         for position in self.board.positions(player.disk()) {
             for direction in Direction::all() {
@@ -135,7 +137,7 @@ impl Game {
                     
                     if disk.is_none() {
                         if distance > 1 {
-                            actions.push(Action { player, placement: walker.unwrap() });
+                            actions.insert(Action { player, placement: walker.unwrap() });
                         }
                         break;
                     }

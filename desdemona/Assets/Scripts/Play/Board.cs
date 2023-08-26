@@ -17,30 +17,26 @@ namespace Play
         /// </summary>
         private const float FlipBreakDuration = 0.2f;
 
+        public delegate UniTask Thinking();
+        public event Thinking OnThinking;
+        
+        public delegate UniTask Decided(Tile tile);
+        public event Decided OnDecided;
+        
+        public delegate UniTask GameOver(Player? winner);
+        public event GameOver OnGameOver;
+
         private void Awake()
         {
             _bot = GetComponentInChildren<Bot>();
             _grid = GetComponentInChildren<BoardGrid>();
+            _grid.OnDiskPlaced += OnDiskPlaced;
         }
         
         private async void Start()
         {
-            await InitializeBoard();
-            _grid.OnDiskPlaced += OnDiskPlaced;
-        }
-
-        private async UniTask InitializeBoard()
-        {
             var response = await _bot.InitialBoard();
-            foreach (var (i, j, tile) in _grid.Enumerate())
-            {
-                if (!DiskColorMethods.CanParse(response[i][j]))
-                {
-                    continue;
-                }
-                tile.PlaceDisk(DiskColorMethods.Parse(response[i][j]));
-            }
-            
+            await UpdateGrid(response, new BoardGrid.Position(0, 0));
             await UpdateActiveTiles();
         }
         
@@ -57,11 +53,12 @@ namespace Play
                 t.CanPlaceDisk = false;
             }
 
-            var (board, isGameOver) = await _bot.Result(_grid, Player.Human, position, OnGameOver);
+            var (board, isGameOver, winner) = await _bot.Result(_grid, Player.Human, position);
             await UpdateGrid(board, position);
 
             if (isGameOver)
             {
+                await OnGameOver?.Invoke(winner).ToCoroutine();
                 return;
             }
             
@@ -70,9 +67,14 @@ namespace Play
 
         private async UniTask Decide()
         {
-            var (decision, result, isGameOver) = await _bot.Decide(_grid, OnGameOver);
+            await OnThinking?.Invoke().ToCoroutine();
+            var (decision, result, isGameOver, winner) = await _bot.Decide(_grid);
+            var tile = _grid.Tile(decision);
+            await OnDecided?.Invoke(tile).ToCoroutine();
+
             if (isGameOver)
             {
+                await OnGameOver?.Invoke(winner).ToCoroutine();
                 return;
             }
             
@@ -82,7 +84,7 @@ namespace Play
             }
             else
             {
-                _grid.Tile(decision).PlaceDisk(Player.Bot.Disk());
+                tile.PlaceDisk(Player.Bot.Disk());
             }
             
             await _grid.WaitWhileUpdating();
@@ -153,12 +155,6 @@ namespace Play
             {
                 tile.CanPlaceDisk = actions.Contains(BoardGrid.Position.Parse(tile));
             }
-        }
-
-        private static void OnGameOver(Player? winner)
-        {
-            Debug.Log("Game over");
-            Debug.Log(winner.HasValue ? $"Winner: {winner}" : "Winner: Draw");
         }
     }
 }

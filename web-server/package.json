@@ -30,6 +30,7 @@
   "typings": "./lib/index.d.ts",
   "scripts": {
     "build": "npx tsc",
+    "build-unity": "ts-node src/buildUnity.ts",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "prepublish": "npm run build",
     "dev": "ts-node src/index.ts",

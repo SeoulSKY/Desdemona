@@ -172,7 +172,7 @@ namespace Play
             _audioSource.PlayOneShot(flipSound);
             
             _rigidbody.AddForce(Vector3.up * 5, ForceMode.Impulse);
-            _rigidbody.AddTorque(transform.right * 0.05f, ForceMode.Impulse);
+            _rigidbody.AddTorque(transform.right * 0.06f, ForceMode.Impulse);
         }
         
         /// <summary>

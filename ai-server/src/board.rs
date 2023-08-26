@@ -75,7 +75,7 @@ impl Disk {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Hash, Eq)]
 pub struct Position {
     row: usize,
     col: usize,

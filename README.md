@@ -27,7 +27,7 @@ First, open the folder `desdemona` in Unity and close it. This will create the n
 Then, change the directory into the folder `web-server` and run the following commands:
 ```
 npm install
-ts-node src/buildUnity.ts
+npm run build-unity
 ```
 This will build and move the Unity project to the `web-server`.
 

@@ -60,9 +60,8 @@ namespace Play
         /// <param name="boardGrid">The grid to apply</param>
         /// <param name="player">The current player</param>
         /// <param name="position">The position to place a disk</param>
-        /// <param name="onGameOver">The callback to be called with the game is over</param>
-        /// <returns>The resulted board and whether the game is over or not</returns>
-        public async UniTask<Tuple<char[][], bool>> Result(BoardGrid boardGrid, Player player, BoardGrid.Position position, Action<Player?> onGameOver)
+        /// <returns>The resulted board, whether the game is over or not, and the winner if game is over</returns>
+        public async UniTask<Tuple<char[][], bool, Player?>> Result(BoardGrid boardGrid, Player player, BoardGrid.Position position)
         {
             var json = await SendGet("result",
                 new Tuple<string, string>("board", boardGrid.ToString()),
@@ -70,11 +69,11 @@ namespace Play
                 new Tuple<string, string>("position", position.ToString()));
             
             var response = JObject.Parse(json);
-            HandleGameOver(response, onGameOver);
 
-            return new Tuple<char[][], bool>(
+            return new Tuple<char[][], bool, Player?>(
                 ParseGrid((string) response["board"]), 
-                IsGameOver(response)
+                IsGameOver(response),
+                IsGameOver(response) ? GetWinner(response) : null
                 );
         }
 
@@ -94,9 +93,8 @@ namespace Play
         /// Returns the decision of the AI from the given grid
         /// </summary>
         /// <param name="boardGrid">The grid to decide the next action of the AI</param>
-        /// <param name="onGameOver">The method to be called when the game is over</param>
-        /// <returns>The selected position to place a disk from the AI, the resulted board and weather the game is over or not</returns>
-        public async UniTask<Tuple<BoardGrid.Position, char[][], bool>> Decide(BoardGrid boardGrid, Action<Player?> onGameOver)
+        /// <returns>The selected position to place a disk from the AI, the resulted board,weather the game is over or not and the winner if the game is over</returns>
+        public async UniTask<Tuple<BoardGrid.Position, char[][], bool, Player?>> Decide(BoardGrid boardGrid)
         {
             var json = await SendGet("decide", 
                 new Tuple<string, string>("board", boardGrid.ToString()), 
@@ -105,13 +103,12 @@ namespace Play
 
             var response = JObject.Parse(json);
             Assert.IsNotNull(response["result"], "Invalid format of Json from the server");
-
-            HandleGameOver(response["result"], onGameOver);
-
-            return new Tuple<BoardGrid.Position, char[][], bool>(
+            
+            return new Tuple<BoardGrid.Position, char[][], bool, Player?>(
                 string.IsNullOrEmpty((string) response["decision"]) ? null : boardGrid.Find((string) response["decision"]),
                 ParseGrid((string) response["result"]["board"]),
-                IsGameOver(response["result"])
+                IsGameOver(response["result"]),
+                IsGameOver(response["result"]) ? GetWinner(response["result"]) : null
                 );
         }
 
@@ -120,17 +117,14 @@ namespace Play
             return result["winner"] != null;
         }
 
-        private static void HandleGameOver(JToken result, Action<Player?> onGameOver)
+        private static Player? GetWinner(JToken result)
         {
             if (!IsGameOver(result))
             {
-                return;
+                throw new InvalidOperationException("Cannot get the winner when the game is not over");
             }
             
-            onGameOver(string.IsNullOrEmpty((string) result["winner"]) ? 
-                null : 
-                PlayerMethods.Parse((char) result["winner"])
-                );
+            return string.IsNullOrEmpty((string) result["winner"]) ? null : PlayerMethods.Parse((char) result["winner"]);
         }
         
         private static char[][] ParseGrid(string s)

@@ -24,32 +24,35 @@ app.use(express.static("public"));
 
 import {build} from "./buildUnity";
 
-(async () => {
-    if (!process.env.AI_SERVER_HOST) {
-        logger.error("Environment variable of 'AI_SERVER_HOST' is not set");
-        process.exit(1);
-    }
+if (require.main === module) {
 
-    if (!fs.existsSync(path.join("public", "Build"))) {
-        if (process.env.DOCKER) {
-            logger.error("Build not found. Run 'ts-node src/buildUnity.ts' in your local machine with unity installed");
+    (async () => {
+        if (!process.env.AI_SERVER_HOST) {
+            logger.error("Environment variable of 'AI_SERVER_HOST' is not set");
             process.exit(1);
-        } else {
-            await build();
         }
-    }
 
-    while (true) {
-        try {
-            await fetch(process.env.AI_SERVER_HOST as string, { method: "HEAD" });
-            break;
-        } catch (e) {
-            logger.debug(`Couldn't get a response from ${process.env.AI_SERVER_HOST}. Retrying in ${RETRY_INTERVAL.asSeconds()} seconds...`)
-            await new Promise(r => setTimeout(r, RETRY_INTERVAL.asMilliseconds()));
+        if (!fs.existsSync(path.join("public", "Build"))) {
+            if (process.env.DOCKER) {
+                logger.error("Build not found. Run 'ts-node src/buildUnity.ts' in your local machine with unity installed");
+                process.exit(1);
+            } else {
+                await build();
+            }
         }
-    }
 
-    app.listen(PORT, HOST, () => {
-        logger.info(`Server is running on port: ${PORT}`);
-    });
-})();
+        while (true) {
+            try {
+                await fetch(process.env.AI_SERVER_HOST as string, { method: "HEAD" });
+                break;
+            } catch (e) {
+                logger.debug(`Couldn't get a response from ${process.env.AI_SERVER_HOST}. Retrying in ${RETRY_INTERVAL.asSeconds()} seconds...`)
+                await new Promise(r => setTimeout(r, RETRY_INTERVAL.asMilliseconds()));
+            }
+        }
+
+        app.listen(PORT, HOST, () => {
+            logger.info(`Server is running on port: ${PORT}`);
+        });
+    })();
+}

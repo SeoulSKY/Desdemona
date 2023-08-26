@@ -42,10 +42,11 @@ export async function build() {
 
     logger.info("Moving the Build in this server...")
     start = moment();
+    let dest = path.join(PROJECT_ROOT_PATH, "public", "Build");
     if (process.platform === "win32") {
-        await execAsync(`Move-Item -Path ${path.join(BUILD_PATH, "Build")} -Destination ${path.join(PROJECT_ROOT_PATH, "public")}`)
+        await execAsync(`Move-Item -Path ${path.join(BUILD_PATH, "Build")} -Destination ${dest} -Force`)
     } else {
-        await execAsync(`mv ${path.join(BUILD_PATH, "Build")} ${path.join(PROJECT_ROOT_PATH, "public")}`)
+        await execAsync(`rm -rf ${dest} && mv ${path.join(BUILD_PATH, "Build")} ${dest}`)
     }
     end = moment()
     logger.info(`Finished moving in ${duration(end.diff(start)).humanize()}`)
@@ -61,11 +62,13 @@ export async function build() {
     logger.info(`Finished cleaning in ${duration(end.diff(start)).humanize()}`)
 }
 
-(async () => {
-    try {
-        await build()
-    } catch (e) {
-        logger.error(e);
-        process.exit(1);
-    }
-})();
+if (require.main === module) {
+    (async () => {
+        try {
+            await build()
+        } catch (e) {
+            logger.error(e);
+            process.exit(1);
+        }
+    })();
+}
