@@ -46,22 +46,26 @@ namespace Play
         }
     }
 
-        public readonly struct Decision
-        {
-            [CanBeNull]
-            public BoardGrid.Position Position { get; }
-            public Result Result { get; }
+    public readonly struct Decision
+    {
+        [CanBeNull]
+        public BoardGrid.Position Position { get; }
+        public Result Result { get; }
 
-            public Decision([CanBeNull] BoardGrid.Position position, Result result)
-            {
-                Position = position;
-                Result = result;
-            }
+        public Decision([CanBeNull] BoardGrid.Position position, Result result)
+        {
+            Position = position;
+            Result = result;
         }
+    }
     
     public class Bot : MonoBehaviour
     {
-        public uint Intelligence { get; set; } = 1;
+        private uint _intelligence = 0;
+        public void SetIntelligence(int value)
+        {
+            _intelligence = (uint) value;
+        }
 
         private string _host;
 
@@ -144,7 +148,7 @@ namespace Play
         {
             var json = await SendGet("decide", 
                 new Tuple<string, string>("board", boardGrid.ToString()), 
-                new Tuple<string, string>("intelligence", Intelligence.ToString())
+                new Tuple<string, string>("intelligence", _intelligence.ToString())
                 );
 
             var response = JObject.Parse(json);

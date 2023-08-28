@@ -108,6 +108,8 @@ fn decide(board: String, intelligence: u32) -> Result<String, BadRequest<String>
     let game = Game::parse(board.unwrap(), Player::Bot);
     
     let decision = bot.decide(&game);
+    info!("Number of nodes expanded: {}", bot.num_nodes_expanded);
+    
     if decision.is_err() { // No available actions
         let json = json!({
             "decision": Value::Null,

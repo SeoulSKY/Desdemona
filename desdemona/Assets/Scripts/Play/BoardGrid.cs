@@ -120,11 +120,7 @@ namespace Play
 
         private void Awake()
         {
-            _referenceTile = GetComponentInChildren<Tile>();
-        }
-
-        private void Start()
-        {
+            _referenceTile = GetComponentInChildren<Tile>(true);
             PlaceTiles();
         }
 

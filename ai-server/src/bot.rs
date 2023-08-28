@@ -10,6 +10,7 @@ pub struct Bot {
     depth_limit: u32,
     game: Game,
     minimax_cache: HashMap<Game, i32>,
+    pub num_nodes_expanded: u32,
 }
 
 impl Bot {
@@ -20,6 +21,7 @@ impl Bot {
             depth_limit: intelligence,
             game: Game::new(),
             minimax_cache: HashMap::new(),
+            num_nodes_expanded: 0,
         }
     }
     
@@ -29,6 +31,9 @@ impl Bot {
     /// * self.game.current_player() == Player::Bot
     pub fn decide(&mut self, game: &Game) -> Result<(Action, Game), Error> {
         assert_eq!(self.game.current_player(), Player::Bot);
+        
+        self.num_nodes_expanded = 0;
+        self.num_nodes_expanded += 1;
         
         let mut bot_best = MIN_BEST_EVALUATION;
         let human_best = MAX_BEST_EVALUATION;
@@ -69,6 +74,8 @@ impl Bot {
             return self.evaluate(game);
         }
 
+        self.num_nodes_expanded += 1;
+
         let mut min_best_here = MAX_BEST_EVALUATION;
 
         for act in game.actions(Player::Human) {
@@ -93,7 +100,9 @@ impl Bot {
         } else if depth > self.depth_limit {
             return self.evaluate(game);
         }
-        
+
+        self.num_nodes_expanded += 1;
+
         let mut max_best_here = MIN_BEST_EVALUATION;
         
         for act in game.actions(Player::Bot) {

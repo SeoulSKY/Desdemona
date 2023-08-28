@@ -8,7 +8,8 @@ namespace Play
 {
     public class Board : MonoBehaviour
     {
-        private Bot _bot;
+        [Tooltip("The wrapper for the AI server")]
+        [SerializeField] private Bot bot;
         
         private BoardGrid _grid;
         
@@ -28,14 +29,13 @@ namespace Play
 
         private void Awake()
         {
-            _bot = GetComponentInChildren<Bot>();
             _grid = GetComponentInChildren<BoardGrid>();
             _grid.OnDiskPlaced += OnDiskPlaced;
         }
         
         private async void Start()
         {
-            var response = await _bot.InitialBoard();
+            var response = await bot.InitialBoard();
             await UpdateGrid(response, new BoardGrid.Position(0, 0));
             await UpdateActiveTiles();
         }
@@ -53,7 +53,7 @@ namespace Play
                 t.CanPlaceDisk = false;
             }
 
-            var result = await _bot.Result(_grid, Player.Human, position);
+            var result = await bot.Result(_grid, Player.Human, position);
             await UpdateGrid(result.Board, position);
 
             if (result.IsGameOver)
@@ -68,7 +68,7 @@ namespace Play
         private async UniTask Decide()
         {
             await OnThinking?.Invoke().ToCoroutine();
-            var decision = await _bot.Decide(_grid);
+            var decision = await bot.Decide(_grid);
             var tile = _grid.Tile(decision.Position);
             await OnDecided?.Invoke(tile).ToCoroutine();
 
@@ -144,7 +144,7 @@ namespace Play
 
         private async UniTask UpdateActiveTiles()
         {
-            var actions = await _bot.Actions(_grid);
+            var actions = await bot.Actions(_grid);
             if (actions.Count == 0)
             {
                 Debug.Log("Human has no actions to take this turn");

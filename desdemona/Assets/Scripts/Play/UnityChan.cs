@@ -74,7 +74,7 @@ namespace Play
                 Animator.StringToHash("Boring 1"),
             };
 
-            _board = FindObjectOfType<Board>();
+            _board = FindObjectOfType<Board>(true);
             
             _board.OnThinking += OnThinking;
             _board.OnDecided += OnDecided;

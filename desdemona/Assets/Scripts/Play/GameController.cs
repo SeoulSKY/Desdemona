@@ -10,6 +10,9 @@ namespace Play
         [Tooltip("The UI to display when the game is paused")]
         [SerializeField] private GameObject pauseMenu;
 
+        [Tooltip("The UI to select the difficulty of the game")]
+        [SerializeField] private GameObject difficultyMenu;
+
         [Tooltip("The background image to display when the game is paused")]
         [SerializeField] private Image background;
 
@@ -18,7 +21,7 @@ namespace Play
 
         [Tooltip("The panel to display when the game throws an error")]
         [SerializeField] private GameObject errorPanel;
-        
+
         private FirstPersonController _fpController;
         private CursorManager _cursorManager;
         
@@ -28,6 +31,13 @@ namespace Play
         {
             _fpController = FindObjectOfType<FirstPersonController>();
             _cursorManager = FindObjectOfType<CursorManager>();
+        }
+
+        private void Start()
+        {
+            difficultyMenu.SetActive(true);
+            background.gameObject.SetActive(true);
+            ShowCursor(true);
         }
         
         private void OnEnable()
@@ -51,7 +61,7 @@ namespace Play
             {
                 OnPaused();
             }
-            else
+            else if (!difficultyMenu.activeSelf)
             {
                 OnResumed();
             }
@@ -64,14 +74,7 @@ namespace Play
             background.gameObject.SetActive(false);
             panelSound.Play();
 
-            _fpController.cameraCanMove = true;
-            _fpController.playerCanMove = true;
-            _fpController.crosshair = true;
-            _fpController.enableZoom = true;
-            
-            _cursorManager.gameObject.SetActive(true);
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            ShowCursor(false);
         }
 
         public void OnNewGame()
@@ -90,14 +93,19 @@ namespace Play
             background.gameObject.SetActive(true);
             panelSound.Play();
             
-            _fpController.cameraCanMove = false;
-            _fpController.playerCanMove = false;
-            _fpController.crosshair = false;
-            _fpController.enableZoom = false;
+           ShowCursor(true);
+        }
+
+        public void ShowCursor(bool value)
+        {
+            _fpController.cameraCanMove = !value;
+            _fpController.playerCanMove = !value;
+            _fpController.crosshair = !value;
+            _fpController.enableZoom = !value;
             
-            _cursorManager.gameObject.SetActive(false);
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.Confined;
+            _cursorManager.gameObject.SetActive(!value);
+            Cursor.visible = value;
+            Cursor.lockState = value ? CursorLockMode.Confined : CursorLockMode.Locked;
         }
         
         private void OnApplicationFocus(bool hasFocus)
@@ -113,7 +121,8 @@ namespace Play
             }
             
             errorPanel.SetActive(true);
-            Debug.LogError($"{condition}:\n{stackTrace}");
+            ShowCursor(false);
+            panelSound.Play();
         }
     }
 }
