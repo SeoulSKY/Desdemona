@@ -32,23 +32,23 @@ impl Bot {
     pub fn decide(&mut self, game: &Game) -> Result<(Action, Game), Error> {
         assert_eq!(self.game.current_player(), Player::Bot);
         
-        self.num_nodes_expanded = 0;
-        self.num_nodes_expanded += 1;
+        self.num_nodes_expanded = 1;
         
         let mut bot_best = MIN_BEST_EVALUATION;
         let human_best = MAX_BEST_EVALUATION;
         
         let mut minimax_value = bot_best;
-        let mut best_action= Action::default();
-        let mut best_result= Game::default();
-        let mut decided = false;
         let mut num_actions = 0;
+        let mut decided = false;
+        
+        let mut best_action = Action::default();
+        let mut best_result= Game::default();
         
         for act in game.actions(Player::Bot) {
             num_actions += 1;
             let result = game.result(&act);
             let value = self.min_value(result.clone(), bot_best, human_best, 1);
-            if value > minimax_value {
+            if value >= minimax_value {
                 minimax_value = value;
                 best_action = act;
                 best_result = result;

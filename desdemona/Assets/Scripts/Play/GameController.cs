@@ -1,4 +1,6 @@
+using Cysharp.Threading.Tasks;
 using SunTemple;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -22,8 +24,12 @@ namespace Play
         [Tooltip("The panel to display when the game throws an error")]
         [SerializeField] private GameObject errorPanel;
 
+        [Tooltip("The text to display whe the game is over")]
+        [SerializeField] private TMP_Text gameResult;
+
         private FirstPersonController _fpController;
         private CursorManager _cursorManager;
+        private Board _board;
         
         private bool _isPaused;
 
@@ -31,10 +37,13 @@ namespace Play
         {
             _fpController = FindObjectOfType<FirstPersonController>();
             _cursorManager = FindObjectOfType<CursorManager>();
+            _board = FindObjectOfType<Board>(true);
         }
 
         private void Start()
         {
+            _board.OnGameOver += OnGameOver;
+            
             difficultyMenu.SetActive(true);
             background.gameObject.SetActive(true);
             ShowCursor(true);
@@ -123,6 +132,19 @@ namespace Play
             errorPanel.SetActive(true);
             ShowCursor(false);
             panelSound.Play();
+        }
+
+        private UniTask OnGameOver(Player? winner)
+        {
+            gameResult.text = winner switch
+            {
+                Player.Bot => "You Lose!",
+                Player.Human => "You Win!",
+                var _ => "Draw",
+            };
+            
+            gameResult.gameObject.SetActive(true);
+            return UniTask.CompletedTask;
         }
     }
 }
