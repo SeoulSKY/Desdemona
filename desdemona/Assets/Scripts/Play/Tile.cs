@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Play
 {
@@ -104,8 +105,18 @@ namespace Play
             await OnDiskPlaced?.Invoke(this).ToCoroutine();
         }
 
+        private static bool IsMouseOnUI()
+        {
+            return EventSystem.current.IsPointerOverGameObject();
+        }
+
         private void OnMouseEnter()
         {
+            if (IsMouseOnUI())
+            {
+                return;
+            }
+            
             GetComponent<Renderer>().material = onMouseEnterMaterial;
 
             if (Disk != null || !CanPlaceDisk)
@@ -131,6 +142,11 @@ namespace Play
 
         private void OnMouseDown()
         {
+            if (IsMouseOnUI())
+            {
+                return;
+            }
+            
             GetComponent<Renderer>().material = onMouseDownMaterial;
         }
 

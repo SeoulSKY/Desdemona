@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using Cysharp.Threading.Tasks;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -11,15 +12,62 @@ using UnityEngine.Assertions;
 
 namespace Play
 {
+    public readonly struct Result
+    {
+        public char[][] Board { get; }
+        public bool IsGameOver { get; }
+
+        private readonly Player? _winner;
+        
+        public Player? Winner
+        {
+            get
+            {
+                if (!IsGameOver)
+                {
+                    throw new InvalidOperationException("Cannot get the winner when the game is not over");
+                }
+                return _winner;
+            }
+        }
+
+        public Result(char[][] board)
+        {
+            Board = board;
+            IsGameOver = false;
+            _winner = null;
+        }
+
+        public Result(char[][] board, Player? winner)
+        {
+            Board = board;
+            IsGameOver = true;
+            _winner = winner;
+        }
+    }
+
+        public readonly struct Decision
+        {
+            [CanBeNull]
+            public BoardGrid.Position Position { get; }
+            public Result Result { get; }
+
+            public Decision([CanBeNull] BoardGrid.Position position, Result result)
+            {
+                Position = position;
+                Result = result;
+            }
+        }
+    
     public class Bot : MonoBehaviour
     {
-        [SerializeField] private uint intelligence = 1;
+        public uint Intelligence { get; set; } = 1;
 
         private string _host;
 
         private void Awake()
         {
-            _host = "http://127.0.0.1:8000";
+            _host = "http://localhost:8000";
         }
 
         private string Url(string endPoint, params Tuple<string, string>[] parameters)
@@ -61,7 +109,7 @@ namespace Play
         /// <param name="player">The current player</param>
         /// <param name="position">The position to place a disk</param>
         /// <returns>The resulted board, whether the game is over or not, and the winner if game is over</returns>
-        public async UniTask<Tuple<char[][], bool, Player?>> Result(BoardGrid boardGrid, Player player, BoardGrid.Position position)
+        public async UniTask<Result> Result(BoardGrid boardGrid, Player player, BoardGrid.Position position)
         {
             var json = await SendGet("result",
                 new Tuple<string, string>("board", boardGrid.ToString()),
@@ -70,11 +118,9 @@ namespace Play
             
             var response = JObject.Parse(json);
 
-            return new Tuple<char[][], bool, Player?>(
-                ParseGrid((string) response["board"]), 
-                IsGameOver(response),
-                IsGameOver(response) ? GetWinner(response) : null
-                );
+            return IsGameOver(response) ? 
+                new Result(ParseGrid((string)response["board"]), GetWinner(response)) : 
+                new Result(ParseGrid((string)response["board"]));
         }
 
         public async UniTask<ICollection<BoardGrid.Position>> Actions(BoardGrid boardGrid)
@@ -94,22 +140,24 @@ namespace Play
         /// </summary>
         /// <param name="boardGrid">The grid to decide the next action of the AI</param>
         /// <returns>The selected position to place a disk from the AI, the resulted board,weather the game is over or not and the winner if the game is over</returns>
-        public async UniTask<Tuple<BoardGrid.Position, char[][], bool, Player?>> Decide(BoardGrid boardGrid)
+        public async UniTask<Decision> Decide(BoardGrid boardGrid)
         {
             var json = await SendGet("decide", 
                 new Tuple<string, string>("board", boardGrid.ToString()), 
-                new Tuple<string, string>("intelligence", intelligence.ToString())
+                new Tuple<string, string>("intelligence", Intelligence.ToString())
                 );
 
             var response = JObject.Parse(json);
             Assert.IsNotNull(response["result"], "Invalid format of Json from the server");
-            
-            return new Tuple<BoardGrid.Position, char[][], bool, Player?>(
-                string.IsNullOrEmpty((string) response["decision"]) ? null : boardGrid.Find((string) response["decision"]),
-                ParseGrid((string) response["result"]["board"]),
-                IsGameOver(response["result"]),
-                IsGameOver(response["result"]) ? GetWinner(response["result"]) : null
-                );
+
+            var result = IsGameOver(response["result"]) ?
+                new Result(ParseGrid((string) response["result"]["board"]), GetWinner(response["result"])) :
+                new Result(ParseGrid((string) response["result"]["board"]));
+
+            return new Decision(
+                string.IsNullOrEmpty((string) response["decision"]) ? null : boardGrid.Find((string)response["decision"]),
+                result
+            );
         }
 
         private static bool IsGameOver(JToken result)

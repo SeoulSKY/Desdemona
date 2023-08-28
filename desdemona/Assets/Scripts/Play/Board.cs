@@ -53,12 +53,12 @@ namespace Play
                 t.CanPlaceDisk = false;
             }
 
-            var (board, isGameOver, winner) = await _bot.Result(_grid, Player.Human, position);
-            await UpdateGrid(board, position);
+            var result = await _bot.Result(_grid, Player.Human, position);
+            await UpdateGrid(result.Board, position);
 
-            if (isGameOver)
+            if (result.IsGameOver)
             {
-                await OnGameOver?.Invoke(winner).ToCoroutine();
+                await OnGameOver?.Invoke(result.Winner).ToCoroutine();
                 return;
             }
             
@@ -68,17 +68,17 @@ namespace Play
         private async UniTask Decide()
         {
             await OnThinking?.Invoke().ToCoroutine();
-            var (decision, result, isGameOver, winner) = await _bot.Decide(_grid);
-            var tile = _grid.Tile(decision);
+            var decision = await _bot.Decide(_grid);
+            var tile = _grid.Tile(decision.Position);
             await OnDecided?.Invoke(tile).ToCoroutine();
 
-            if (isGameOver)
+            if (decision.Result.IsGameOver)
             {
-                await OnGameOver?.Invoke(winner).ToCoroutine();
+                await OnGameOver?.Invoke(decision.Result.Winner).ToCoroutine();
                 return;
             }
             
-            if (decision == null)
+            if (decision.Position == null)
             {
                 Debug.Log("AI has no actions to take this turn");
             }
@@ -88,7 +88,7 @@ namespace Play
             }
             
             await _grid.WaitWhileUpdating();
-            await UpdateGrid(result, decision);
+            await UpdateGrid(decision.Result.Board, decision.Position);
             await UpdateActiveTiles();
         }
         
