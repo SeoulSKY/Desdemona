@@ -72,34 +72,22 @@ namespace Play
     
     public class Disk : MonoBehaviour
     {
-        /// <summary>
-        /// The relative height to spawn the disk from current position
-        /// </summary>
+        [Tooltip("The relative height to spawn the disk from current position")]
         [SerializeField] private float spawnHeight;
-
-        /// <summary>
-        /// The audio clip to play when the disk spawns
-        /// </summary>
+        
+        [Tooltip("The audio clip to play when the disk spawns")]
         [SerializeField] private AudioClip spawnSound;
-
-        /// <summary>
-        /// The audio clip to play when the disk flips
-        /// </summary>
+        
+        [Tooltip("The audio clip to play when the disk flips")]
         [SerializeField] private AudioClip flipSound;
         
-        /// <summary>
-        /// The audio clip to play when the disk drops
-        /// </summary>
+        [Tooltip("The audio clip to play when the disk drops")]
         [SerializeField] private AudioClip dropSound;
-
-        /// <summary>
-        /// The particle system to play when the disk spawns
-        /// </summary>
+        
+        [Tooltip("The particle system to play when the disk spawns")]
         [SerializeField] private ParticleSystem spawnEffect;
-
-        /// <summary>
-        /// The particle system to play when the disk drops
-        /// </summary>
+        
+        [Tooltip("The particle system to play when the disk drops")]
         [SerializeField] private ParticleSystem dropEffect;
 
         private Rigidbody _rigidbody;

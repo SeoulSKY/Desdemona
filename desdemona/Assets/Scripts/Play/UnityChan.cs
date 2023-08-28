@@ -8,44 +8,28 @@ namespace Play
 {
     public class UnityChan : MonoBehaviour
     {
-        /// <summary>
-        /// How long does it take for Unity-Chan to get boring in seconds
-        /// </summary>
+        [Tooltip("How long does it take for Unity-Chan to get boring in seconds")]
         [SerializeField] private float boringInterval = 10f;
-
-        /// <summary>
-        /// The audios to play in random when Unity-Chan is greeting
-        /// </summary>
+        
+        [Tooltip("The audios to play in random when Unity-Chan is greeting")]
         [SerializeField] private AudioClip[] greetingAudios;
-
-        /// <summary>
-        /// The audios to play in random when Unity-Chan is thinking
-        /// </summary>
+        
+        [Tooltip("The audios to play in random when Unity-Chan is thinking")]
         [SerializeField] private AudioClip[] thinkingAudios;
-
-        /// <summary>
-        /// The audios to play in the order of boring actions when Unity-Chan is boring
-        /// </summary>
+        
+        [Tooltip("The audios to play in the order of boring actions when Unity-Chan is boring")]
         [SerializeField] private AudioClip[] boringAudios;
-
-        /// <summary>
-        /// The audios to play in random when Unity-Chan is spawning a disk
-        /// </summary>
+        
+        [Tooltip("The audios to play in random when Unity-Chan is spawning a disk")]
         [SerializeField] private AudioClip[] spawningAudio;
         
-        /// <summary>
-        /// The audios to play in random when Unity-Chan won the game
-        /// </summary>
+        [Tooltip("The audios to play in random when Unity-Chan won the game")]
         [SerializeField] private AudioClip[] wonAudios;
         
-        /// <summary>
-        /// The audios to play in random when Unity-Chan lost the game
-        /// </summary>
+        [Tooltip("The audios to play in random when Unity-Chan lost the game")]
         [SerializeField] private AudioClip[] lostAudios;
         
-        /// <summary>
-        /// The audios to play in random when draw the game
-        /// </summary>
+        [Tooltip("The audios to play in random when draw the game")]
         [SerializeField] private AudioClip[] drawAudios;
 
         private AudioSource _audioSource;
@@ -60,8 +44,16 @@ namespace Play
         private int[] _boringStateHashes;
 
         private Board _board;
-        private bool _isGameOver;
-        
+
+        private bool _isIdle;
+        private bool IsIdle
+        {
+            get
+            {
+                return _isIdle || _animator.GetCurrentAnimatorStateInfo(0).shortNameHash == _idleStateHash;
+            }
+        }
+
         [CanBeNull]
         private Coroutine _idleCoroutine;
 
@@ -95,23 +87,11 @@ namespace Play
             _audioSource.PlayOneShot(greetingAudios[choice]);
         }
 
-        private void Update()
-        {
-            if (IsIdle() && _idleCoroutine == null)
-            {
-                _idleCoroutine = StartCoroutine(OnIdle().ToCoroutine());
-            }
-        }
-
-        private bool IsIdle()
-        {
-            return _animator.GetCurrentAnimatorStateInfo(0).shortNameHash == _idleStateHash;
-        }
-
         private async UniTask OnIdle()
         {
+            _isIdle = true;
             await UniTask.WaitForSeconds(boringInterval);
-            if (!IsIdle())
+            if (!IsIdle)
             {
                 _idleCoroutine = null;
                 return;
@@ -126,11 +106,17 @@ namespace Play
 
             _audioSource.Stop();
             _audioSource.PlayOneShot(boringAudios[choice]);
-            _idleCoroutine = null;
         }
 
         private async UniTask OnThinking()
         {
+            _isIdle = false;
+            if (_idleCoroutine != null)
+            {
+                StopCoroutine(_idleCoroutine);
+                _idleCoroutine = null;
+            }
+            
             _animator.SetBool(_thinkingHash, true);
             await UniTask.WaitUntil(() => _animator.IsInTransition(0));
 
@@ -141,6 +127,7 @@ namespace Play
 
         private async UniTask OnDecided(Tile tile)
         {
+            _isIdle = false;
             _animator.SetBool(_thinkingHash, false);
             
             // Wait for playing spawn animation
@@ -150,12 +137,19 @@ namespace Play
             _audioSource.Stop();
             var choice = Random.Range(0, spawningAudio.Length);
             _audioSource.PlayOneShot(spawningAudio[choice]);
+
+            IEnumerator Lambda()
+            {
+                yield return UniTask.WaitUntil(() => IsIdle).ToCoroutine();
+                _idleCoroutine = StartCoroutine(OnIdle().ToCoroutine());
+            }
+            
+            StartCoroutine(Lambda()); 
         }
 
         private UniTask OnGameOver(Player? winner)
         {
             _audioSource.Stop();
-            _isGameOver = true;
             switch (winner)
             {
                 case Player.Bot:
