@@ -9,6 +9,9 @@ namespace Play
 {
     public class GameController : MonoBehaviour
     {
+        [Tooltip("The slider to update based on the evaluation of the current board")]
+        [SerializeField] private Slider evaluation;
+        
         [Tooltip("The UI to display when the game is paused")]
         [SerializeField] private GameObject pauseMenu;
 
@@ -30,15 +33,23 @@ namespace Play
         private FirstPersonController _fpController;
         private CursorManager _cursorManager;
         private Board _board;
+        private BoardGrid _boardGrid;
+        private Bot _bot;
         
         private bool _isPaused;
         private bool _canPause;
+        public void CanPause(bool value)
+        {
+            _canPause = value;
+        }
 
         private void Awake()
         {
             _fpController = FindObjectOfType<FirstPersonController>();
             _cursorManager = FindObjectOfType<CursorManager>();
             _board = FindObjectOfType<Board>(true);
+            _boardGrid = _board.GetComponentInChildren<BoardGrid>(true);
+            _bot = FindObjectOfType<Bot>();
         }
 
         private void Start()
@@ -48,6 +59,14 @@ namespace Play
             difficultyMenu.SetActive(true);
             background.gameObject.SetActive(true);
             ShowCursor(true);
+
+            _board.OnGridUpdate += Lambda;
+            return;
+            
+            async UniTask Lambda()
+            {
+                evaluation.value = 1f - await _bot.Evaluate(_boardGrid);
+            }
         }
         
         private void OnEnable()
@@ -142,6 +161,13 @@ namespace Play
                 Player.Bot => "You Lose!",
                 Player.Human => "You Win!",
                 var _ => "Draw",
+            };
+
+            evaluation.value = winner switch
+            {
+                Player.Bot => 0f,
+                Player.Human => 1f,
+                var _ => 0.5f,
             };
             
             gameResult.gameObject.SetActive(true);

@@ -1,6 +1,6 @@
 #[macro_use] extern crate rocket;
 
-use game::max_best_evaluation;
+use game::{max_best_evaluation, min_best_evaluation};
 use itertools::Itertools;
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Header;
@@ -50,7 +50,10 @@ fn evaluate(board: String) -> Result<String, BadRequest<String>> {
     }
 
     let evaluation = Game::parse(board.unwrap(), Player::default()).evaluate();
-    Ok((evaluation as f32 / max_best_evaluation() as f32).to_string())
+
+    let range = max_best_evaluation() - min_best_evaluation();
+    let normalized = (evaluation - min_best_evaluation()) as f32 / range as f32;
+    Ok(normalized.to_string())
 }
 
 #[get("/result?<board>&<position>&<player>")]

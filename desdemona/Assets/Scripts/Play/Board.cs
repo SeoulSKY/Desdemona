@@ -18,6 +18,9 @@ namespace Play
         /// </summary>
         private const float FlipBreakDuration = 0.2f;
 
+        public delegate UniTask GridUpdate();
+        public event GridUpdate OnGridUpdate;
+        
         public delegate UniTask Thinking();
         public event Thinking OnThinking;
         
@@ -140,6 +143,7 @@ namespace Play
             }
             
             await _grid.WaitWhileUpdating();
+            await OnGridUpdate?.Invoke().ToCoroutine();
         }
 
         private async UniTask UpdateActiveTiles()

@@ -61,7 +61,7 @@ namespace Play
     
     public class Bot : MonoBehaviour
     {
-        private uint _intelligence = 0;
+        private uint _intelligence;
         public void SetIntelligence(int value)
         {
             _intelligence = (uint) value;
@@ -104,6 +104,16 @@ namespace Play
         public async UniTask<char[][]> InitialBoard()
         {
             return ParseGrid(await SendGet("initial-board"));
+        }
+
+        /// <summary>
+        /// Returns the evaluation of the given board
+        /// </summary>
+        /// <param name="boardGrid">The board to evaluate</param>
+        /// <returns>The evaluation</returns>
+        public async UniTask<float> Evaluate(BoardGrid boardGrid)
+        {
+            return float.Parse(await SendGet("evaluate", new Tuple<string, string>("board", boardGrid.ToString())));
         }
         
         /// <summary>
