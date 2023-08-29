@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::errors::Error;
 use crate::errors::Error::InvalidArgument;
-use crate::game::{Action, Game, MAX_BEST_EVALUATION, MIN_BEST_EVALUATION};
+use crate::game::{Action, Game, max_best_evaluation, min_best_evaluation};
 use crate::game::Player;
 
 pub struct Bot {
@@ -34,8 +34,8 @@ impl Bot {
         
         self.num_nodes_expanded = 1;
         
-        let mut bot_best = MIN_BEST_EVALUATION;
-        let human_best = MAX_BEST_EVALUATION;
+        let mut bot_best = min_best_evaluation();
+        let human_best = max_best_evaluation();
         
         let mut minimax_value = bot_best;
         let mut num_actions = 0;
@@ -76,7 +76,7 @@ impl Bot {
 
         self.num_nodes_expanded += 1;
 
-        let mut min_best_here = MAX_BEST_EVALUATION;
+        let mut min_best_here = max_best_evaluation();
 
         for act in game.actions(Player::Human) {
             let result = game.result(&act);
@@ -103,7 +103,7 @@ impl Bot {
 
         self.num_nodes_expanded += 1;
 
-        let mut max_best_here = MIN_BEST_EVALUATION;
+        let mut max_best_here = min_best_evaluation();
         
         for act in game.actions(Player::Bot) {
             let result = game.result(&act);

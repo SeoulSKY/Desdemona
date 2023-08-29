@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
-use std::hash::{Hash};
+use std::hash::Hash;
+use lazy_static::lazy_static;
 
 use crate::board::{Board, Direction, Disk, Position};
 use crate::board::Disk::{Dark, Light};
@@ -11,11 +12,37 @@ use crate::game::Player::{Bot, Human};
 pub const BOT_CHAR: char = 'B';
 pub const HUMAN_CHAR: char = 'H';
 
-pub const MAX_BEST_EVALUATION: i32 = i32::MAX;
-pub const MIN_BEST_EVALUATION: i32 = i32::MIN;
+lazy_static! {
+    static ref MAX_BEST_EVALUATION: i32 = {
+        assert_eq!(Bot.disk(), Light);
+
+        let mut board = Board::new();
+        for pos in Position::all() {
+            match board.disk(&pos) {
+                Some(Dark) => board.flip(&pos).unwrap(),
+                None => board.place(Bot.disk(), &pos).unwrap(),
+                Some(Light) => (),
+            }
+        }
+
+        let value = Game::parse(board, Player::default()).evaluate();
+        value
+    };
+}
+
+/// Returns the best evaluation possible for max
+pub fn max_best_evaluation() -> i32 {
+    *MAX_BEST_EVALUATION
+}
+
+/// Returns the best evaluation possible for min
+pub fn min_best_evaluation() -> i32 {
+    -max_best_evaluation()
+}
 
 const PLACEMENT_WEIGHT: i32 = 1;
-const MOBILITY_WEIGHT: i32 = 1;
+const MOBILITY_WEIGHT: i32 = 5;
+const NUM_DISKS_WEIGHT: i32 = 1;
 
 #[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum Player {
@@ -237,18 +264,14 @@ impl Game {
         assert!(self.is_over());
         
         match self.winner {
-            Some(Bot) => MAX_BEST_EVALUATION,
-            Some(_) => MIN_BEST_EVALUATION,
+            Some(Bot) => max_best_evaluation(),
+            Some(_) => min_best_evaluation(),
             None => 0,
         }
     }
     
     /// Evaluates this game state to a value
-    /// Pre-conditions:
-    /// * !self.is_over()
-    pub fn evaluate(&self) -> i32 {
-        assert!(!self.is_over());
-        
+    pub fn evaluate(&self) -> i32 {        
         PLACEMENT_WEIGHT * (
             self.board.positions(Bot.disk())
                 .map(|p| p.weight())
@@ -260,6 +283,11 @@ impl Game {
             self.actions(Bot)
                 .count() as i32 -
             self.actions(Human)
+                .count() as i32
+        ) + NUM_DISKS_WEIGHT * (
+            self.board.positions(Bot.disk())
+                .count() as i32 -
+            self.board.positions(Human.disk())
                 .count() as i32
         )
     }

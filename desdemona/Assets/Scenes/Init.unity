@@ -325,7 +325,7 @@ PrefabInstance:
       objectReference: {fileID: 1053125684}
     - target: {fileID: 4922523601585367783, guid: 5ebad8a41bbacbe419403ab6a0c52078, type: 3}
       propertyPath: sceneNumber
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4922523601585367783, guid: 5ebad8a41bbacbe419403ab6a0c52078, type: 3}
       propertyPath: continueText

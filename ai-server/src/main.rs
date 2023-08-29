@@ -1,5 +1,6 @@
 #[macro_use] extern crate rocket;
 
+use game::max_best_evaluation;
 use itertools::Itertools;
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Header;
@@ -39,6 +40,17 @@ fn index() -> &'static str {
 #[get("/initial-board")]
 fn initial_board() -> String {
     Board::new().to_string()
+}
+
+#[get("/evaluate?<board>")]
+fn evaluate(board: String) -> Result<String, BadRequest<String>> {
+    let board = Board::parse(board);
+    if board.is_err() {
+        return Err(BadRequest(Some("Invalid board".to_string())));
+    }
+
+    let evaluation = Game::parse(board.unwrap(), Player::default()).evaluate();
+    Ok((evaluation as f32 / max_best_evaluation() as f32).to_string())
 }
 
 #[get("/result?<board>&<position>&<player>")]
@@ -131,7 +143,7 @@ fn decide(board: String, intelligence: u32) -> Result<String, BadRequest<String>
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
     rocket::build()
-        .mount("/", routes![index, initial_board, result, actions, decide])
+        .mount("/", routes![index, initial_board, evaluate, result, actions, decide])
         .attach(CORS)
         .launch()
         .await?;

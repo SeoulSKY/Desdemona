@@ -10,7 +10,7 @@ namespace UnityChan
 
         void NextLevel ()
 		{
-			//SceneManager.LoadScene();
+			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
 		}
 	}
 }

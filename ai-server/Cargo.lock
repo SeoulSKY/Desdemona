@@ -147,6 +147,7 @@ name = "desdemona"
 version = "0.1.0"
 dependencies = [
  "itertools",
+ "lazy_static",
  "rocket",
  "serde",
  "serde_json",

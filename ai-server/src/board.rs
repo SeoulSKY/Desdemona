@@ -16,14 +16,14 @@ pub const LIGHT_CHAR: char = 'L';
 pub const EMPTY_CHAR: char = 'E';
 
 const POSITION_WEIGHTS: [[i32; BOARD_SIZE]; BOARD_SIZE] = [
-    [ 30, -25, 10, 5, 5, 10, -25,  30],
-    [-25, -25,  1, 1, 1,  1, -25, -25],
-    [ 10,   1,  5, 2, 2,  5,   1,  10],
-    [  5,   1,  2, 1, 1,  2,   1,   5],
-    [  5,   1,  2, 1, 1,  2,   1,   5],
-    [ 10,   1,  5, 2, 2,  5,   1,  10],
-    [-25, -25,  1, 1, 1,  1, -25, -25],
-    [ 30, -25, 10, 5, 5, 10, -25,  30],
+    [100, -10,  30,  20,  20,  30, -10, 100],
+    [-10, -10,   1,   2,   2,   1, -10, -10],
+    [ 30,   1,  10,   6,   6,  10,   1,  30],
+    [ 20,   2,   6,   0,   0,   6,   2,  20],
+    [ 20,   2,   6,   0,   0,   6,   2,  20],
+    [ 30,   1,  10,   6,   6,  10,   1,  30],
+    [-10, -10,   1,   2,   2,   1, -10, -10],
+    [100, -10,  30,  20,  20,  30, -10, 100]
 ];
 
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -156,6 +156,18 @@ impl Position {
     /// Returns the weight of this position
     pub fn weight(&self) -> i32 {
         POSITION_WEIGHTS[self.row][self.col]
+    }
+
+    /// Returns all possible positions of the board
+    pub fn all() -> impl Iterator<Item=Position> {
+        let mut positions = vec![];
+        for i in 0..BOARD_SIZE {
+            for j in 0..BOARD_SIZE {
+                positions.push(Position::new(i, j));
+            }
+        }
+
+        positions.into_iter()
     }
 }
 

@@ -1,8 +1,7 @@
-using System.Collections;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using JetBrains.Annotations;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Play
 {
@@ -38,25 +37,20 @@ namespace Play
         private int _wonHash;
         private int _drawHash;
         private int _lostHash;
-        private int _boringHash;
+        private int _isBoringHash;
         private int _boringIndexHash;
         private int _idleStateHash;
         private int[] _boringStateHashes;
 
         private Board _board;
-
-        private bool _isIdle;
         private bool IsIdle
         {
             get
             {
-                return _isIdle || _animator.GetCurrentAnimatorStateInfo(0).shortNameHash == _idleStateHash;
+                return _animator.GetCurrentAnimatorStateInfo(0).shortNameHash == _idleStateHash;
             }
         }
-
-        [CanBeNull]
-        private Coroutine _idleCoroutine;
-
+        
         private void Awake()
         {
             _audioSource = GetComponent<AudioSource>();
@@ -65,7 +59,7 @@ namespace Play
             _wonHash = Animator.StringToHash("won");
             _drawHash = Animator.StringToHash("draw");
             _lostHash = Animator.StringToHash("lost");
-            _boringHash = Animator.StringToHash("boring");
+            _isBoringHash = Animator.StringToHash("isBoring");
             _boringIndexHash = Animator.StringToHash("boringIndex");
             _idleStateHash = Animator.StringToHash("Idle");
             _boringStateHashes = new[]
@@ -85,39 +79,40 @@ namespace Play
         {
             var choice = Random.Range(0, greetingAudios.Length);
             _audioSource.PlayOneShot(greetingAudios[choice]);
+
+            StartCoroutine(SetBoring().ToCoroutine());
         }
 
-        private async UniTask OnIdle()
+        private async UniTask SetBoring()
         {
-            _isIdle = true;
-            await UniTask.WaitForSeconds(boringInterval);
-            if (!IsIdle)
+            while (true)
             {
-                _idleCoroutine = null;
-                return;
-            }
-            
-            var choice = Random.Range(0, boringAudios.Length);
-
-            _animator.SetInteger(_boringIndexHash, choice);
-            _animator.SetTrigger(_boringHash);
+                await UniTask.WaitUntil(() => IsIdle);
                 
-            await UniTask.WaitUntil(() => _boringStateHashes.Contains(_animator.GetCurrentAnimatorStateInfo(0).shortNameHash));
+                await UniTask.WaitForSeconds(boringInterval);
+                if (!IsIdle)
+                {
+                    _animator.SetBool(_isBoringHash, false);
+                    continue;
+                }
+            
+                var choice = Random.Range(0, boringAudios.Length);
 
-            _audioSource.Stop();
-            _audioSource.PlayOneShot(boringAudios[choice]);
+                _animator.SetInteger(_boringIndexHash, choice);
+                _animator.SetBool(_isBoringHash, true);
+                
+                await UniTask.WaitUntil(() => _boringStateHashes.Contains(_animator.GetCurrentAnimatorStateInfo(0).shortNameHash));
+
+                _audioSource.Stop();
+                _audioSource.PlayOneShot(boringAudios[choice]);
+            }
         }
 
         private async UniTask OnThinking()
         {
-            _isIdle = false;
-            if (_idleCoroutine != null)
-            {
-                StopCoroutine(_idleCoroutine);
-                _idleCoroutine = null;
-            }
-            
+            _animator.SetBool(_isBoringHash, false);
             _animator.SetBool(_thinkingHash, true);
+            
             await UniTask.WaitUntil(() => _animator.IsInTransition(0));
 
             _audioSource.Stop();
@@ -127,24 +122,16 @@ namespace Play
 
         private async UniTask OnDecided(Tile tile)
         {
-            _isIdle = false;
+            _animator.SetBool(_isBoringHash, false);
             _animator.SetBool(_thinkingHash, false);
             
             // Wait for playing spawn animation
             await UniTask.WaitUntil(() => _animator.IsInTransition(0));
-            await UniTask.WaitForSeconds(0.35f);
+            await UniTask.WaitForSeconds(0.25f);
             
             _audioSource.Stop();
             var choice = Random.Range(0, spawningAudio.Length);
             _audioSource.PlayOneShot(spawningAudio[choice]);
-
-            IEnumerator Lambda()
-            {
-                yield return UniTask.WaitUntil(() => IsIdle).ToCoroutine();
-                _idleCoroutine = StartCoroutine(OnIdle().ToCoroutine());
-            }
-            
-            StartCoroutine(Lambda()); 
         }
 
         private UniTask OnGameOver(Player? winner)
@@ -155,7 +142,7 @@ namespace Play
                 case Player.Bot:
                 {
                     var choice = Random.Range(0, wonAudios.Length);
-;                    _audioSource.PlayOneShot(wonAudios[choice]);
+                    _audioSource.PlayOneShot(wonAudios[choice]);
                     _animator.SetTrigger(_wonHash);
                     break;
                 }

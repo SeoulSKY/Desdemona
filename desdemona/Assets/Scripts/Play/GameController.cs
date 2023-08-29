@@ -32,6 +32,7 @@ namespace Play
         private Board _board;
         
         private bool _isPaused;
+        private bool _canPause;
 
         private void Awake()
         {
@@ -61,7 +62,7 @@ namespace Play
 
         private void Update()
         {
-            if (!Input.GetKeyDown(KeyCode.Escape))
+            if (!_canPause || !Input.GetKeyDown(KeyCode.Escape))
             {
                 return;
             }
@@ -105,7 +106,7 @@ namespace Play
            ShowCursor(true);
         }
 
-        public void ShowCursor(bool value)
+        private void ShowCursor(bool value)
         {
             _fpController.cameraCanMove = !value;
             _fpController.playerCanMove = !value;
@@ -130,7 +131,7 @@ namespace Play
             }
             
             errorPanel.SetActive(true);
-            ShowCursor(false);
+            ShowCursor(true);
             panelSound.Play();
         }
 
@@ -145,6 +146,12 @@ namespace Play
             
             gameResult.gameObject.SetActive(true);
             return UniTask.CompletedTask;
+        }
+
+        public void OnInitialDifficultySelected()
+        {
+            ShowCursor(false);
+            _canPause = true;
         }
     }
 }
