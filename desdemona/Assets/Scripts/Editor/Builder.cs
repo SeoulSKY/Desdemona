@@ -1,10 +1,9 @@
 using System;
+using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEditor;
 
-#if UNITY_EDITOR
-    using UnityEditor;
-#endif
 
 namespace Commands
 {
@@ -15,7 +14,7 @@ namespace Commands
             var options = new BuildPlayerOptions
             {
                 scenes = GetAllScenePaths(),
-                locationPathName = "Builds/WebGL",
+                locationPathName = Path.Combine(Application.dataPath, "..", "Builds", "WebGL"),
                 target = BuildTarget.WebGL,
             };
             
