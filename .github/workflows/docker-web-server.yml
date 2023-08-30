@@ -14,15 +14,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Check the existance of the environment secret TEST
-      env:
-        TEST: ${{ secrets.TEST }}
-      run: |
-        if [[ -z "$TEST" ]]; then
-          echo "Assertion failed: The environment secret TEST is not found"
-          exit 1
-        fi
-
     - name: Cache Unity Dependencies
       uses: actions/cache@v2
       with:
