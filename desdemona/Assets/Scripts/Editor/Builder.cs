@@ -28,12 +28,12 @@ namespace Editor
                 Debug.LogError("Build failed: " + buildReport.summary);
             }
         }
-        public static string[] GetScenePaths()
+        private static string[] GetScenePaths()
         {
-            int sceneCount = UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings;
-            string[] scenePaths = new string[sceneCount];
+            var sceneCount = UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings;
+            var scenePaths = new string[sceneCount];
 
-            for (int i = 0; i < sceneCount; i++)
+            for (var i = 0; i < sceneCount; i++)
             {
                 scenePaths[i] = UnityEngine.SceneManagement.SceneUtility.GetScenePathByBuildIndex(i);
             }

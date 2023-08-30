@@ -15,8 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToonyColorsPro.Demo.Editor"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CFXRRuntime", "CFXRRuntime.csproj", "{c5501984-ba2f-a3f4-9128-d5b543dd34b7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gentleland.Utils.SteampunkUI", "Gentleland.Utils.SteampunkUI.csproj", "{e9a69569-8cb4-aafb-c067-ec9d4c8b7ceb}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "com.vanbassum.wakatime", "com.vanbassum.wakatime.csproj", "{5261e600-97d8-3265-5361-d0572bc8bb46}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CFXREditor", "CFXREditor.csproj", "{ff848cd5-9984-2cc0-4b2a-db079823c6bc}"
@@ -32,6 +30,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinoBloom.Runtime", "KinoBloom.Runtime.csproj", "{a6f671e3-ec86-2586-15a5-00763dc5b3e5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniTask.DOTween", "UniTask.DOTween.csproj", "{907a061d-8180-c5a6-1b2b-4a18937a5f4b}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gentleland.Utils.SteampunkUI", "Gentleland.Utils.SteampunkUI.csproj", "{e9a69569-8cb4-aafb-c067-ec9d4c8b7ceb}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,8 +52,6 @@ Global
 		{f30626a1-b062-023a-7184-a72b56fd0e14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{c5501984-ba2f-a3f4-9128-d5b543dd34b7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{c5501984-ba2f-a3f4-9128-d5b543dd34b7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{e9a69569-8cb4-aafb-c067-ec9d4c8b7ceb}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{e9a69569-8cb4-aafb-c067-ec9d4c8b7ceb}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5261e600-97d8-3265-5361-d0572bc8bb46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5261e600-97d8-3265-5361-d0572bc8bb46}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ff848cd5-9984-2cc0-4b2a-db079823c6bc}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -70,6 +68,8 @@ Global
 		{a6f671e3-ec86-2586-15a5-00763dc5b3e5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{907a061d-8180-c5a6-1b2b-4a18937a5f4b}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{907a061d-8180-c5a6-1b2b-4a18937a5f4b}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{e9a69569-8cb4-aafb-c067-ec9d4c8b7ceb}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{e9a69569-8cb4-aafb-c067-ec9d4c8b7ceb}.Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

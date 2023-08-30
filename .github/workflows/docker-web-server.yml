@@ -32,7 +32,8 @@ jobs:
       with:
         targetPlatform: WebGL
         unityVersion: 2022.3.7f1
-        projectPath: ./desdemona
+        projectPath: desdemona
+        buildName: WebGL
 
     - name: Move the build to the right location
       run: |
