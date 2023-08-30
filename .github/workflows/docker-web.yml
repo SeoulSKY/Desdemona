@@ -34,9 +34,9 @@ jobs:
         projectPath: desdemona
         buildMethod: Commands.Builder.Build
 
-    - name: Move the build to the right location
+    - name: Copy the build to the right location
       run: |
-        mv desdemona/Builds/WebGL/Build web-server/public/Build
+        chmod 755 web-server/public && cp -r desdemona/Builds/WebGL/Build web-server/public/Build
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
@@ -60,7 +60,7 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
-        context: .
+        context: web-server
         platforms: linux/amd64,linux/arm64/v8
         push: true
         tags: |
