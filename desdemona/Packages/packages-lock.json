@@ -242,6 +242,13 @@
       "dependencies": {},
       "hash": "66217422184ea3caa5e31320a58b83e6a1e08898"
     },
+    "extensions.unity.ubuilder": {
+      "version": "1.1.3",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
     "com.unity.modules.ai": {
       "version": "1.0.0",
       "depth": 0,
