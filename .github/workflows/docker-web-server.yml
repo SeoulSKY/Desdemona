@@ -13,18 +13,20 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Unity
-      uses: webbertakken/unity-actions@v2
-      with:
-        unityVersion: 2022.3.7f1
-
     - name: Build Unity project
-      run: |
-        unity -batchmode -projectPath ./desdemona -executeMethod Builder.Build -quit nographics
+      uses: game-ci/unity-builder@v3
+      env:
+        UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+        UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+      with:
+        targetPlatform: WebGL
+        unityVersion: 2022.3.7f1
+        projectPath: ./desdemona
 
     - name: Move the build to the right location
       run: |
-        mv ./desdemona/Assets/Builds/Build ./web-server/public/Build
+        mv build/WebGL/Build ./web-server/public/Build
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
