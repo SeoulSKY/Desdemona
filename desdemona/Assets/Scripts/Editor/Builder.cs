@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -6,19 +7,17 @@ namespace Editor
 {
     public class Builder
     {
-        // This method performs the actual build.
-        private static void Build(BuildTarget buildTarget, string outputFilePath)
+        public static void Build()
         {
-            string[] scenes = GetScenePaths();
-            BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions
+            var buildPlayerOptions = new BuildPlayerOptions
             {
-                scenes = scenes,
+                scenes = GetScenePaths(),
                 targetGroup = BuildTargetGroup.WebGL,
-                target = buildTarget,
-                locationPathName = outputFilePath
+                target = BuildTarget.WebGL,
+                locationPathName = Path.Combine(Application.dataPath, "Builds"),
             };
 
-            BuildReport buildReport = BuildPipeline.BuildPlayer(buildPlayerOptions);
+            var buildReport = BuildPipeline.BuildPlayer(buildPlayerOptions);
 
             if (buildReport.summary.result == BuildResult.Succeeded)
             {
@@ -26,12 +25,10 @@ namespace Editor
             }
             else
             {
-                Debug.LogError("Build failed: " + buildReport.summary.ToString());
+                Debug.LogError("Build failed: " + buildReport.summary);
             }
         }
-
-        // Helper method to get scene paths.
-        private static string[] GetScenePaths()
+        public static string[] GetScenePaths()
         {
             int sceneCount = UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings;
             string[] scenePaths = new string[sceneCount];
