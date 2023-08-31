@@ -250,7 +250,8 @@ QualitySettings:
     terrainBillboardStart: 50
     terrainFadeLength: 5
     terrainMaxTrees: 50
-    excludedTargetPlatforms: []
+    excludedTargetPlatforms:
+    - iPhone
   - serializedVersion: 3
     name: Ultra
     pixelLightCount: 4

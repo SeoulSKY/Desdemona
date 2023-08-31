@@ -81,7 +81,7 @@ namespace Play
 
         private void Update()
         {
-            if (!_canPause || !Input.GetKeyDown(KeyCode.Escape))
+            if (!_canPause || !Input.GetKeyDown(KeyCode.Q))
             {
                 return;
             }
@@ -133,8 +133,7 @@ namespace Play
             _fpController.enableZoom = !value;
             
             _cursorManager.gameObject.SetActive(!value);
-            Cursor.visible = value;
-            Cursor.lockState = value ? CursorLockMode.Confined : CursorLockMode.Locked;
+            Cursor.lockState = value ? CursorLockMode.None : CursorLockMode.Locked;
         }
         
         private void OnApplicationFocus(bool hasFocus)

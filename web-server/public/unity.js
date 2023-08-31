@@ -18,13 +18,13 @@ function main() {
     document.body.style.textAlign = "left";
 
     new UnityWebgl("#unity-canvas", {
-        loaderUrl: "Build/buildDefault.loader.js",
-        dataUrl: "Build/buildDefault.data.unityweb",
-        frameworkUrl: "Build/buildDefault.framework.js.unityweb",
-        codeUrl: "Build/buildDefault.wasm.unityweb",
+        loaderUrl: "Build/WebGL.loader.js",
+        dataUrl: "Build/WebGL.data.unityweb",
+        frameworkUrl: "Build/WebGL.framework.js.unityweb",
+        codeUrl: "Build/WebGL.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "SeoulSKY",
-        productName: "Othello AI",
+        productName: "Desdemona",
         productVersion: "0.1.0",
     });
 }

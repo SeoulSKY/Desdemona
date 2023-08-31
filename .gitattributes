@@ -1,4 +1,11 @@
-Assets/Plugins/** linguist-vendored
+desdemona/Assets/Characters/** linguist-vendored
+desdemona/Assets/Environment/** linguist-vendored
+desdemona/Assets/FirstPersonController/** linguist-vendored
+desdemona/Assets/GentlelandSettings/** linguist-vendored
+desdemona/Assets/ParticleSystem/** linguist-vendored
+desdemona/Assets/Plugins/** linguist-vendored
+desdemona/Assets/TextMesh?Pro/** linguist-vendored
+desdemona/Assets/UI/** linguist-vendored
 
 *.mm linguist-vendored
 *.h linguist-vendored

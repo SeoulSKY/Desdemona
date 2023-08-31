@@ -34,7 +34,7 @@ if (require.main === module) {
 
         if (!fs.existsSync(path.join("public", "Build"))) {
             if (process.env.DOCKER) {
-                logger.error("Build not found. Run 'ts-node src/buildUnity.ts' in your local machine with unity installed");
+                logger.error("Build not found. Run 'npm run build-unity' in your local machine with unity installed");
                 process.exit(1);
             } else {
                 await build();

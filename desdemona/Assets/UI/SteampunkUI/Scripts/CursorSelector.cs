@@ -2,11 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 
 namespace Gentleland.StemapunkUI.DemoAndExample
 {
-    public class CursorSelector : MonoBehaviour, IPointerClickHandler
+    public class CursorSelector : MonoBehaviour
     {
         [SerializeField]
         Vector2 hotspot;
@@ -26,11 +25,11 @@ namespace Gentleland.StemapunkUI.DemoAndExample
                 }
                 cursorTexture.Apply();
             }
-        }
-        public void OnPointerClick(PointerEventData eventData)
-        {
+            
             if (cursorTexture != null)
                 Cursor.SetCursor(cursorTexture, hotspot, CursorMode.Auto);
+            
+            DontDestroyOnLoad(gameObject);
         }
     }
 }
