@@ -2,12 +2,12 @@ version: "3"
 
 services:
   ai-server:
-    build: ./ai-server
+    image: ghcr.io/seoulsky/desdemona-ai:latest
     container_name: ai-server
     ports:
       - "8000:8000"
   web-server:
-    build: ./web-server
+    image: ghcr.io/seoulsky/desdemona-web:latest
     container_name: web-server
     depends_on:
      - ai-server
