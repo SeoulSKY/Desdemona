@@ -18,9 +18,11 @@ export const logger = pino({
 
 export const PROJECT_ROOT_PATH = path.dirname(require.main?.path as string);
 
+
 const app = express();
 
 app.use(compression());
+
 app.use(express.static("public"));
 
 import {build} from "./buildUnity";

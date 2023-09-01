@@ -71,7 +71,7 @@ namespace Play
 
         private void Awake()
         {
-            _host = Application.isEditor ? "http://localhost:8000/api" : "https://desdemona.seoulsky.org:8000/api";
+            _host = PlayerPrefs.GetString("aiServerHost", "http://localhost:8000/api");
         }
 
         private string Url(string endPoint, params Tuple<string, string>[] parameters)
