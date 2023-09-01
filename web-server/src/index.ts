@@ -23,6 +23,14 @@ const app = express();
 
 app.use(compression());
 
+app.use("/Build/WebGL.*.(unityweb|js)", (req, res, _) => {
+    if (req.originalUrl.endsWith(".unityweb")) {
+        res.setHeader("Content-Encoding", "gzip");
+    }
+
+    res.sendFile(path.join(__dirname, "..", "public", req.originalUrl));
+});
+
 app.use(express.static("public"));
 
 import {build} from "./buildUnity";
@@ -38,16 +46,22 @@ if (require.main === module) {
             }
         }
 
-        while (true) {
-            try {
-                await fetch(AI_SERVER_HOST, { method: "GET" });
-                break;
-            } catch (e) {
-                logger.debug(`Couldn't get a response from ${AI_SERVER_HOST}. Retrying in ${RETRY_INTERVAL.asSeconds()} seconds...`)
-                await new Promise(r => setTimeout(r, RETRY_INTERVAL.asMilliseconds()));
+        if (process.env.DOCKER) {
+            while (true) {
+                try {
+                    await fetch(AI_SERVER_HOST, { method: "GET" });
+                    break;
+                } catch (e) {
+                    logger.debug(
+                    `Couldn't get a response from ${AI_SERVER_HOST}. Retrying in ${RETRY_INTERVAL.asSeconds()} seconds...`
+                    );
+                    await new Promise((r) =>
+                    setTimeout(r, RETRY_INTERVAL.asMilliseconds())
+                    );
+                }
             }
         }
-      
+
         app.listen(PORT, HOST, () => {
           logger.info("Web server is running");
         });
