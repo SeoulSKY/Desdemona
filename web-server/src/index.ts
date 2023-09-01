@@ -25,7 +25,7 @@ app.use(compression());
 
 app.use("/Build/WebGL.*.unityweb", (req, res, _) => {
     res.setHeader("Content-Encoding", "gzip");
-    res.sendFile(path.join(__dirname, "..", "public", req.originalUrl));
+    res.sendFile(path.join(PROJECT_ROOT_PATH, "public", req.originalUrl));
 });
 
 app.use(express.static("public"));
