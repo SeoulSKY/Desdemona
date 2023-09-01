@@ -5,7 +5,8 @@ import path from "path";
 import fs from "fs";
 import {duration} from "moment";
 
-const AI_SERVER_HOST = "http://ai-server:8000/api"
+const IS_PRODUCTION = process.env.DOCKER != undefined;
+const AI_SERVER_HOST = IS_PRODUCTION ? "http://ai-server:8000/api" : "http://localhost:8000/api";
 const HOST = "0.0.0.0";
 const PORT = 8080;
 const RETRY_INTERVAL = duration({second: 5});
@@ -35,7 +36,7 @@ import {build} from "./buildUnity";
 if (require.main === module) {
     (async () => {
         if (!fs.existsSync(path.join(PROJECT_ROOT_PATH, "public", "Build"))) {
-            if (process.env.DOCKER) {
+            if (IS_PRODUCTION) {
                 logger.error("Build not found. Run 'npm run build-unity' in your local machine with unity installed");
                 process.exit(1);
             } else {
@@ -43,7 +44,7 @@ if (require.main === module) {
             }
         }
 
-        if (process.env.DOCKER) {
+        if (IS_PRODUCTION) {
             while (true) {
                 try {
                     await fetch(AI_SERVER_HOST, { method: "GET" });
