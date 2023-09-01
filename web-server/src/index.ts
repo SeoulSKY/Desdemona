@@ -34,7 +34,7 @@ import {build} from "./buildUnity";
 
 if (require.main === module) {
     (async () => {
-        if (!fs.existsSync(path.join("public", "Build"))) {
+        if (!fs.existsSync(path.join(PROJECT_ROOT_PATH, "public", "Build"))) {
             if (process.env.DOCKER) {
                 logger.error("Build not found. Run 'npm run build-unity' in your local machine with unity installed");
                 process.exit(1);
