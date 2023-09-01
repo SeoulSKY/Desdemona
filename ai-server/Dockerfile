@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-EXPOSE 8000
+EXPOSE 80
 
 CMD ["cargo", "run", "--release"]

@@ -93,7 +93,6 @@ namespace Play
         private Rigidbody _rigidbody;
         private AudioSource _audioSource;
         
-
         private bool _isReady;
         
         public bool IsSpawning { get; private set; }

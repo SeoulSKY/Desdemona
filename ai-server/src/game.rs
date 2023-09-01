@@ -8,6 +8,7 @@ use crate::board::Disk::{Dark, Light};
 use crate::errors::Error;
 use crate::errors::Error::ParseError;
 use crate::game::Player::{Bot, Human};
+use crate::game::Phase::{Early, Mid, End};
 
 pub const BOT_CHAR: char = 'B';
 pub const HUMAN_CHAR: char = 'H';
@@ -40,9 +41,11 @@ pub fn min_best_evaluation() -> i32 {
     -max_best_evaluation()
 }
 
-const PLACEMENT_WEIGHT: i32 = 1;
-const MOBILITY_WEIGHT: i32 = 5;
-const NUM_DISKS_WEIGHT: i32 = 1;
+
+/// Weights for early, mid and end stage of the game
+const PLACEMENT_WEIGHTS: [i32; 3] = [5, 4, 2];
+const MOBILITY_WEIGHTS: [i32; 3] = [5, 4, 3];
+const NUM_DISKS_WEIGHTS: [i32; 3] = [-1, -1, 0];
 
 #[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum Player {
@@ -112,9 +115,41 @@ impl Display for Action {
 }
 
 #[derive(Clone, PartialEq, Eq, Hash, Default)]
+enum Phase {
+    #[default]
+    Early,
+    Mid,
+    End,
+}
+
+impl Phase {
+
+    /// Creates a new stage of the game depending of the current turn
+    pub fn new(turn: usize) -> Self {
+        if turn < 20 {
+            Early
+        } else if turn < 40 {
+            Mid
+        } else {
+            End
+        }
+    }
+
+    /// Convert this state into index for getting weights
+    pub fn to_index(&self) -> usize {
+        match *self {
+            Early => 0,
+            Mid => 1,
+            _ => 2,
+        }
+    }
+}
+
+#[derive(Clone, PartialEq, Eq, Hash, Default)]
 pub struct Game {
     board: Board,
     current_player: Player,
+    phase: Phase,
     winner: Option<Player>,
 }
 
@@ -125,15 +160,20 @@ impl Game {
         Self {
             board: Board::new(),
             current_player: Bot,
+            phase: Phase::new(0),
             winner: None,
         }
     }
     
     /// Parses the given data into a Game
     pub fn parse(board: Board, current_player: Player) -> Self {
+        const INITIAL_NUM_DISKS: usize = 4;
+        let turn = board.positions(Dark).count() + board.positions(Light).count() - INITIAL_NUM_DISKS;
+
         let mut game = Self {
             board,
             current_player,
+            phase: Phase::new(turn),
             winner: None,
         };
         
@@ -271,20 +311,22 @@ impl Game {
     }
     
     /// Evaluates this game state to a value
-    pub fn evaluate(&self) -> i32 {        
-        PLACEMENT_WEIGHT * (
+    pub fn evaluate(&self) -> i32 {
+        let phase_index = self.phase.to_index();
+
+        PLACEMENT_WEIGHTS[phase_index] * (
             self.board.positions(Bot.disk())
                 .map(|p| p.weight())
                 .sum::<i32>() -
             self.board.positions(Human.disk())
                 .map(|p| p.weight())
                 .sum::<i32>()
-        ) + MOBILITY_WEIGHT * (
+        ) + MOBILITY_WEIGHTS[phase_index] * (
             self.actions(Bot)
                 .count() as i32 -
             self.actions(Human)
                 .count() as i32
-        ) + NUM_DISKS_WEIGHT * (
+        ) + NUM_DISKS_WEIGHTS[phase_index] * (
             self.board.positions(Bot.disk())
                 .count() as i32 -
             self.board.positions(Human.disk())

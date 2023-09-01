@@ -71,7 +71,7 @@ namespace Play
 
         private void Awake()
         {
-            _host = "http://localhost:8000";
+            _host = "http://localhost:8000/api";
         }
 
         private string Url(string endPoint, params Tuple<string, string>[] parameters)

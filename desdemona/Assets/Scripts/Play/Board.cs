@@ -74,24 +74,25 @@ namespace Play
             var decision = await bot.Decide(_grid);
             var tile = _grid.Tile(decision.Position);
             await OnDecided?.Invoke(tile).ToCoroutine();
-
+            
+            if (decision.Position == null)
+            {
+                Debug.Log("AI has no actions to take this turn");
+                await UpdateActiveTiles();
+                return;
+            }
+            
+            tile.PlaceDisk(Player.Bot.Disk());
+            
+            await _grid.WaitWhileUpdating();
+            await UpdateGrid(decision.Result.Board, decision.Position);
+            
             if (decision.Result.IsGameOver)
             {
                 await OnGameOver?.Invoke(decision.Result.Winner).ToCoroutine();
                 return;
             }
             
-            if (decision.Position == null)
-            {
-                Debug.Log("AI has no actions to take this turn");
-            }
-            else
-            {
-                tile.PlaceDisk(Player.Bot.Disk());
-            }
-            
-            await _grid.WaitWhileUpdating();
-            await UpdateGrid(decision.Result.Board, decision.Position);
             await UpdateActiveTiles();
         }
         
@@ -143,6 +144,7 @@ namespace Play
             }
             
             await _grid.WaitWhileUpdating();
+            Debug.Log("Finished updating board grid");
             await OnGridUpdate?.Invoke().ToCoroutine();
         }
 

@@ -24,6 +24,9 @@ namespace Play
         [Tooltip("The audio source to play when opening/closing a panel")]
         [SerializeField] private AudioSource panelSound;
 
+        [Tooltip("The audio source to play then selecting initial difficulty")]
+        [SerializeField] private AudioSource selectDifficultySound;
+
         [Tooltip("The panel to display when the game throws an error")]
         [SerializeField] private GameObject errorPanel;
 
@@ -56,6 +59,7 @@ namespace Play
         {
             _board.OnGameOver += OnGameOver;
             
+            selectDifficultySound.Play();
             difficultyMenu.SetActive(true);
             background.gameObject.SetActive(true);
             ShowCursor(true);

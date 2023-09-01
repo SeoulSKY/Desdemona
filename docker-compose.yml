@@ -12,6 +12,4 @@ services:
     depends_on:
      - ai-server
     ports:
-     - "8080:8080"
-    environment:
-      - AI_SERVER_HOST=http://ai-server:8000
+     - "80:8080"
