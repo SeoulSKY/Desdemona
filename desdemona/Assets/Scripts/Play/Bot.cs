@@ -69,9 +69,17 @@ namespace Play
 
         private string _host;
 
-        private void Awake()
+        private async void Awake()
         {
-            _host = PlayerPrefs.GetString("aiServerHost", "http://localhost:8000/api");
+            _host = "http://localhost:8000/api";
+            try
+            {
+                await SendGet("/");
+            }
+            catch (UnityWebRequestException)
+            {
+                _host = "https://desdemona.seoulsky.org:8000/api";
+            }
         }
 
         private string Url(string endPoint, params Tuple<string, string>[] parameters)
