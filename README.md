@@ -4,8 +4,6 @@
 > 
 > Can You Beat Impossible Difficulty?
 
-![](https://drive.google.com/file/d/1jC-qsGXBgUxLXSXbidySh8mZw2x9dvIK/view?usp=share_link)
-
 ## Game Overview
 
 > Play Othello with a powerful AI!
