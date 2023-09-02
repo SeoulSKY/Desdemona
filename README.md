@@ -1,16 +1,18 @@
 # Desdemona
 
 > Powerful Othello AI developed with Rust, Unity3D, WebGL, and Node.js
-> 
-> Can You Beat Impossible Difficulty?
 
-<video style="width: 720px" src="https://github.com/SeoulSKY/Desdemona/assets/48105703/60d35a72-98dc-4799-ad6d-17564029e0b4"></video>
+https://github.com/SeoulSKY/Desdemona/assets/48105703/60d35a72-98dc-4799-ad6d-17564029e0b4
 
 ## Game Overview
 
 > Play Othello with a powerful AI!
 
 <img style="width: 720px;" src="https://github.com/SeoulSKY/Desdemona/assets/48105703/97e73583-2bbc-425f-bd02-2959341ea139"></img>
+
+> There are 4 difficulties. Can you beat Impossible Difficulty?
+
+<img style="width: 720px" src="https://github.com/SeoulSKY/Desdemona/assets/48105703/ec1b010b-15ae-4664-9d21-90cd7bce5552"></img>
 
 > Explore the environment around you!
 
