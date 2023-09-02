@@ -10,7 +10,7 @@ https://github.com/SeoulSKY/Desdemona/assets/48105703/60d35a72-98dc-4799-ad6d-17
 
 <img style="width: 720px;" src="https://github.com/SeoulSKY/Desdemona/assets/48105703/97e73583-2bbc-425f-bd02-2959341ea139"></img>
 
-> There are 4 difficulties. Can you beat Impossible Difficulty?
+> There are 4 difficulties. Can you beat the Impossible?
 
 <img style="width: 720px" src="https://github.com/SeoulSKY/Desdemona/assets/48105703/ec1b010b-15ae-4664-9d21-90cd7bce5552"></img>
 
