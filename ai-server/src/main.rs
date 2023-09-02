@@ -149,13 +149,13 @@ fn decide(board: String, intelligence: u32) -> Result<String, BadRequest<String>
 async fn main() -> Result<(), rocket::Error> {
     let allowed_origins: HashSet<String> = [
         "http://localhost:443",
-        "https://localhost:443",
+        "https://localhost",
         "https://localhost:80",  
         "http://localhost:8080",
-        "http://localhost:80",
-        "http://desdemona.seoulsky.org:80",
+        "http://localhost",
+        "http://desdemona.seoulsky.org",
         "http://desdemona.seoulsky.org:443",
-        "https://desdemona.seoulsky.org:443",
+        "https://desdemona.seoulsky.org",
         ].iter()
         .map(|s| s.to_string())
         .collect();
