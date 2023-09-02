@@ -16,7 +16,7 @@
 
 > Open the door and explore the inside of the buildings!
 
-<img style="width: 720px;" src="https://github.com/SeoulSKY/Desdemona/assets/48105703/c21d28b4-d4b3-487f-8359-090a5ad57e86"></img>
+<img style="width: 720px;" src="https://github.com/SeoulSKY/Desdemona/assets/48105703/dd78bf62-984b-4679-8c67-66f3f756ad64"></img>
 
 > This game is powered by Unity-chan, the official mascot of Unity3D
 
