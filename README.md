@@ -4,6 +4,8 @@
 > 
 > Can You Beat Impossible Difficulty?
 
+<video style="width: 720px" src="https://github.com/SeoulSKY/Desdemona/assets/48105703/60d35a72-98dc-4799-ad6d-17564029e0b4"></video>
+
 ## Game Overview
 
 > Play Othello with a powerful AI!
