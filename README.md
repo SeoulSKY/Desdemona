@@ -8,7 +8,11 @@
 
 ## Game Overview
 
-> Other than playing Othello with AI, explore the environment around you!
+> Play Othello with a powerful AI!
+
+<img style="width: 720px;" src="https://github.com/SeoulSKY/Desdemona/assets/48105703/97e73583-2bbc-425f-bd02-2959341ea139"></img>
+
+> Explore the environment around you!
 
 <img style="width: 720px;" src="https://github.com/SeoulSKY/Desdemona/assets/48105703/24f8d6d8-5706-493c-8f05-d3706f067bc5"></img>
 
