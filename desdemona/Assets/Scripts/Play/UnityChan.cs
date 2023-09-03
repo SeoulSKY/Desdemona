@@ -103,6 +103,7 @@ namespace Play
                 
                 await UniTask.WaitUntil(() => _boringStateHashes.Contains(_animator.GetCurrentAnimatorStateInfo(0).shortNameHash));
 
+                _animator.SetBool(_isBoringHash, false);
                 _audioSource.Stop();
                 _audioSource.PlayOneShot(boringAudios[choice]);
             }
