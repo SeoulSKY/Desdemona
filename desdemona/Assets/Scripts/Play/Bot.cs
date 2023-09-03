@@ -74,7 +74,7 @@ namespace Play
             _host = "http://localhost:8000/api";
             try
             {
-                await SendGet("/");
+                await SendGet("");
             }
             catch (UnityWebRequestException)
             {
