@@ -78,7 +78,8 @@ namespace Play
             }
             catch (UnityWebRequestException)
             {
-                _host = "https://desdemona.seoulsky.org:8000/api";
+                Debug.Log("Couldn't find the locally running AI server. Using remote AI server...");
+                _host = "https://desdemona.seoulsky.org/api";
             }
         }
 

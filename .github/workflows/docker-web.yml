@@ -50,7 +50,6 @@ jobs:
         targetPlatform: WebGL
         projectPath: desdemona
         buildMethod: Commands.Builder.Build
-        customParameters: -aiServerHost https://desdemona.seoulsky.org:8000/api
 
     - name: Copy the build to the right location
       run: |
