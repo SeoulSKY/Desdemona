@@ -17,7 +17,7 @@ function main() {
 
     document.body.style.textAlign = "left";
 
-    new UnityWebgl("#unity-canvas", {
+    let unity = new UnityWebgl("#unity-canvas", {
         loaderUrl: "Build/WebGL.loader.js",
         dataUrl: "Build/WebGL.data.unityweb",
         frameworkUrl: "Build/WebGL.framework.js.unityweb",
@@ -26,6 +26,14 @@ function main() {
         companyName: "SeoulSKY",
         productName: "Desdemona",
         productVersion: "0.1.0",
+    });
+
+    unity.on("mounted", () => {
+        let spinner = document.getElementById("spinner");
+        spinner.style.display = "none";
+
+        let canvas = document.getElementById("unity-canvas");
+        canvas.style.display = "block";
     });
 }
 
