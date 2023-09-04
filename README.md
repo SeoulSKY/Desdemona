@@ -2,6 +2,8 @@
 
 > Powerful Othello AI developed with Rust, Unity3D, WebGL, and Node.js
 
+[Click here to play!](https://desdemona.seoulsky.org)
+
 https://github.com/SeoulSKY/Desdemona/assets/48105703/60d35a72-98dc-4799-ad6d-17564029e0b4
 
 ## Game Overview
