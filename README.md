@@ -29,7 +29,6 @@ https://github.com/SeoulSKY/Desdemona/assets/48105703/60d35a72-98dc-4799-ad6d-17
 <img style="width: 720px;" src="https://github.com/SeoulSKY/Desdemona/assets/48105703/2dd2edde-36f9-4b68-86f1-8cb62cfa5951"></img>
 
 
-
 ## How to Play
 * Move the player with `W`, `A`, `S`, and `D` keys on the keyboard
 * Jump with `Space`
@@ -62,3 +61,7 @@ npm run build-unity
 docker-compose -f docker-compose-dev.yml up --build
 ```
 * When the `web-server` is running, visit [here](http://localhost:8080) to play!
+
+## Architecture
+
+![Desdemona](https://github.com/SeoulSKY/Desdemona/assets/48105703/2825305b-203c-4285-920d-765333ffe7fa)
