@@ -4,6 +4,7 @@
 **/.metals
 **/.vscode
 **/.fleet
+**/.trunk
 
 # Ignore temporaries from GameCI
 **/[Aa]rtifacts/
