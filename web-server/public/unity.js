@@ -28,9 +28,17 @@ function main() {
         productVersion: "0.1.0",
     });
 
+    let progressBar = document.getElementById("progress-bar");
+
+    unity.on("progress", (progression) => {
+        progressBar.style.width = 100 * progression + "%";
+    });
+
     unity.on("mounted", () => {
         let spinner = document.getElementById("spinner");
         spinner.style.display = "none";
+
+        progressBar.style.display = "none";
 
         let canvas = document.getElementById("unity-canvas");
         canvas.style.display = "block";
