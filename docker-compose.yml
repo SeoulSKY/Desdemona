@@ -6,6 +6,8 @@ services:
     container_name: ai-server
     ports:
       - "8000:8000"
+    volumes:
+      - ./ai-server:/app
   web-server:
     image: ghcr.io/seoulsky/desdemona-web:latest
     container_name: web-server
@@ -13,3 +15,5 @@ services:
      - ai-server
     ports:
      - "8080:8080"
+    volumes:
+      - ./web-server:/app
