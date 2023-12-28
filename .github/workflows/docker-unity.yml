@@ -1,0 +1,86 @@
+name: Build Unity WebGL
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  docker-web:
+    environment: desdemona
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space@main
+      with:
+        # this might remove tools that are actually needed,
+        # if set to "true" but frees about 6 GB
+        tool-cache: false
+        
+        # all of these default to true, but feel free to set to
+        # "false" if necessary for your workflow
+        android: true
+        dotnet: false
+        haskell: true
+        large-packages: true
+        docker-images: true
+        swap-storage: true
+
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Cache Unity Dependencies
+      uses: actions/cache@v2
+      with:
+        path: ./desdemona/Library
+        key: Library-desdemona-WebGL
+        restore-keys: |
+          Library-desdemona-
+          Library-
+
+    - name: Build Unity project
+      uses: game-ci/unity-builder@v3
+      env:
+        UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+        UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+      with:
+        targetPlatform: WebGL
+        projectPath: desdemona
+        buildMethod: Commands.Builder.Build
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: Build
+        path: desdemona/Builds/WebGL/Build
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Get Repository Name in Lowercase
+      id: repo_name
+      uses: ASzc/change-string-case-action@v5
+      with:
+        string: ${{ github.repository }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v4
+      with:
+        context: web-server
+        platforms: linux/amd64,linux/arm64/v8
+        push: true
+        tags: |
+          ghcr.io/${{ steps.repo_name.outputs.lowercase }}-web:latest

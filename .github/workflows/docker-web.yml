@@ -12,48 +12,8 @@ jobs:
 
     steps:
 
-    - name: Free Disk Space (Ubuntu)
-      uses: jlumbroso/free-disk-space@main
-      with:
-        # this might remove tools that are actually needed,
-        # if set to "true" but frees about 6 GB
-        tool-cache: false
-        
-        # all of these default to true, but feel free to set to
-        # "false" if necessary for your workflow
-        android: true
-        dotnet: false
-        haskell: true
-        large-packages: true
-        docker-images: true
-        swap-storage: true
-
     - name: Checkout code
       uses: actions/checkout@v3
-
-    - name: Cache Unity Dependencies
-      uses: actions/cache@v2
-      with:
-        path: ./desdemona/Library
-        key: Library-desdemona-WebGL
-        restore-keys: |
-          Library-desdemona-
-          Library-
-
-    - name: Build Unity project
-      uses: game-ci/unity-builder@v3
-      env:
-        UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-        UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-        UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-      with:
-        targetPlatform: WebGL
-        projectPath: desdemona
-        buildMethod: Commands.Builder.Build
-
-    - name: Copy the build to the right location
-      run: |
-        chmod 755 web-server/public && cp -r desdemona/Builds/WebGL/Build web-server/public/Build
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
