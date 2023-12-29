@@ -57,8 +57,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ github.sha }}
+        release_name: Release ${{ github.sha }}
 
     - name: Upload WebGL assets
       uses: actions/upload-release-asset@v1
@@ -69,3 +69,13 @@ jobs:
         asset_path: desdemona/Builds/WebGL/Build/*.unityweb
         asset_name: WebGL assets
         asset_content_type: application/gzip
+
+    - name: Upload Unity loader script
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: desdemona/Builds/WebGL/Build/*.loader.js
+        asset_name: Unity loader script
+        asset_content_type: application/javascript
