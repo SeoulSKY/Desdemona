@@ -1,9 +1,10 @@
 import express from "express";
-import compression from "compression";
 import pino from "pino";
 import path from "path";
 import fs from "fs";
-import {duration} from "moment";
+import { duration } from "moment";
+import { createProxyMiddleware } from "http-proxy-middleware";
+
 
 const IS_PRODUCTION = process.env.DOCKER != undefined;
 const AI_SERVER_HOST = IS_PRODUCTION ? "http://ai-server:8000/api" : "http://localhost:8000/api";
@@ -22,46 +23,56 @@ export const PROJECT_ROOT_PATH = path.dirname(require.main?.path as string);
 
 const app = express();
 
-app.use(compression());
-
-app.use("/Build/WebGL.*.unityweb", (req, res, _) => {
-    res.setHeader("Content-Encoding", "gzip");
-    res.sendFile(path.join(PROJECT_ROOT_PATH, "public", req.originalUrl));
-});
-
 app.use(express.static("public"));
 
 import {build} from "./buildUnity";
 
 if (require.main === module) {
     (async () => {
-        if (!fs.existsSync(path.join(PROJECT_ROOT_PATH, "public", "Build"))) {
-            if (IS_PRODUCTION) {
-                logger.error("Build not found. Run 'npm run build-unity' in your local machine with unity installed");
-                process.exit(1);
-            } else {
-                await build();
-            }
+        if (!IS_PRODUCTION && !fs.existsSync(path.join(PROJECT_ROOT_PATH, "public", "Build"))) {
+            await build();
         }
 
         if (IS_PRODUCTION) {
+            let response = await fetch(
+                "https://api.github.com/repos/seoulsky/desdemona/releases/latest"
+            );
+            if (!response.ok) {
+                logger.error("Failed to get latest release info");
+                logger.error(await response.text());
+                process.exit(1);
+            }
+
+            let json = await response.json();
+
+            app.use(
+                "/Build",
+                createProxyMiddleware({
+                    target: `https://github.com/SeoulSKY/Desdemona/releases/download/${json.tag_name}`,
+                    headers: {
+                        "Access-Control-Allow-Origin": "*",
+                    },
+                    pathRewrite: {
+                        "^/Build": "",
+                    },
+                })
+            );
+
             while (true) {
                 try {
-                    await fetch(AI_SERVER_HOST, { method: "GET" });
+                    await fetch(AI_SERVER_HOST);
                     break;
                 } catch (e) {
                     logger.debug(
                     `Couldn't get a response from ${AI_SERVER_HOST}. Retrying in ${RETRY_INTERVAL.asSeconds()} seconds...`
                     );
-                    await new Promise((r) =>
-                    setTimeout(r, RETRY_INTERVAL.asMilliseconds())
-                    );
+                    await new Promise((r) => setTimeout(r, RETRY_INTERVAL.asMilliseconds()));
                 }
             }
         }
 
         app.listen(PORT, HOST, () => {
-          logger.info("Web server is running");
+          logger.info("Web server is running at http://%s:%s", HOST, PORT);
         });
     })();
 }
