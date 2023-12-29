@@ -60,14 +60,34 @@ jobs:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
 
-    - name: Upload WebGL assets
+    - name: Upload WebGL data
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: desdemona/Builds/WebGL/Build/*.unityweb
-        asset_name: WebGL assets
+        asset_path: desdemona/Builds/WebGL/Build/WebGL.data.unityweb
+        asset_name: WebGL data
+        asset_content_type: application/gzip
+
+    - name: Upload WebGL framework
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: desdemona/Builds/WebGL/Build/WebGL.framework.js.unityweb
+        asset_name: WebGL framework
+        asset_content_type: application/gzip
+
+    - name: Upload WebGL wasm
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: desdemona/Builds/WebGL/Build/WebGL.wasm.unityweb
+        asset_name: WebGL wasm
         asset_content_type: application/gzip
 
     - name: Upload Unity loader script
@@ -76,6 +96,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: desdemona/Builds/WebGL/Build/*.loader.js
+        asset_path: desdemona/Builds/WebGL/Build/WebGL.loader.js
         asset_name: Unity loader script
         asset_content_type: application/javascript
