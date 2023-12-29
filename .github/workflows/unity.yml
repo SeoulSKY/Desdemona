@@ -2,8 +2,8 @@ name: Build Unity WebGL
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - v*
 
 jobs:
   unity:
