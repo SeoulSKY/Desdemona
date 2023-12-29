@@ -6,7 +6,7 @@ import { duration } from "moment";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
 
-const IS_PRODUCTION = process.env.DOCKER != undefined;
+const IS_PRODUCTION = process.env.PRODUCTION !== undefined;
 const AI_SERVER_HOST = IS_PRODUCTION ? "http://ai-server:8000/api" : "http://localhost:8000/api";
 const HOST = "0.0.0.0";
 const PORT = 8080;
@@ -25,12 +25,11 @@ const app = express();
 
 app.use(express.static("public"));
 
-import {build} from "./buildUnity";
-
 if (require.main === module) {
     (async () => {
         if (!IS_PRODUCTION && !fs.existsSync(path.join(PROJECT_ROOT_PATH, "public", "Build"))) {
-            await build();
+            logger.error("Unity build not found. Run 'npm run build-unity' first.");
+            process.exit(1);
         }
 
         if (IS_PRODUCTION) {
@@ -49,6 +48,7 @@ if (require.main === module) {
                 "/Build",
                 createProxyMiddleware({
                     target: `https://github.com/SeoulSKY/Desdemona/releases/download/${json.tag_name}`,
+                    changeOrigin: true,
                     headers: {
                         "Access-Control-Allow-Origin": "*",
                     },
@@ -72,7 +72,7 @@ if (require.main === module) {
         }
 
         app.listen(PORT, HOST, () => {
-          logger.info("Web server is running at http://%s:%s", HOST, PORT);
+          logger.info("Web server is listening http://%s:%s", HOST, PORT);
         });
     })();
 }
