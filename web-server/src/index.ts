@@ -49,8 +49,8 @@ if (require.main === module) {
                 createProxyMiddleware({
                     target: `https://github.com/SeoulSKY/Desdemona/releases/download/${json.tag_name}`,
                     changeOrigin: true,
-                    headers: {
-                        "Access-Control-Allow-Origin": "*",
+                    onProxyRes: (_proxyRes, _req, res) => {
+                        res.setHeader("Access-Control-Allow-Origin", "*");
                     },
                     pathRewrite: {
                         "^/Build": "",
