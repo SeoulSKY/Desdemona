@@ -1,4 +1,4 @@
-name: Build Docker Image of Web Server
+name: Build and Push Docker Images
 
 on:
   push:
@@ -6,12 +6,11 @@ on:
       - master
 
 jobs:
-  docker-web:
+  docker:
     environment: desdemona
     runs-on: ubuntu-latest
 
     steps:
-
     - name: Checkout code
       uses: actions/checkout@v3
 
@@ -34,7 +33,16 @@ jobs:
       with:
         string: ${{ github.repository }}
 
-    - name: Build and push
+    - name: Build and push ai-server
+      uses: docker/build-push-action@v4
+      with:
+        context: ai-server
+        platforms: linux/amd64,linux/arm64/v8
+        push: true
+        tags: |
+          ghcr.io/${{ steps.repo_name.outputs.lowercase }}-ai:latest
+
+    - name: Build and push web-server
       uses: docker/build-push-action@v4
       with:
         context: web-server
