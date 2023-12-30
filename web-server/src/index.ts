@@ -32,7 +32,7 @@ if (require.main === module) {
             process.exit(1);
         }
 
-        if (true) {
+        if (IS_PRODUCTION) {
             let response = await fetch(
                 "https://api.github.com/repos/seoulsky/desdemona/releases/latest"
             );
@@ -78,7 +78,7 @@ if (require.main === module) {
                 });
             });
 
-            while (false) {
+            while (true) {
                 try {
                     await fetch(AI_SERVER_HOST);
                     break;
