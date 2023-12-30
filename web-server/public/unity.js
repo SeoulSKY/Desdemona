@@ -1,6 +1,9 @@
 function main() {
+    let error = document.getElementById("error");
+
+
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        alert("Mobile devices are not supported. Please use a desktop.");
+        error.innerText = "Mobile devices are not supported. Please use a desktop.";
         return;
     }
 
@@ -34,7 +37,7 @@ function main() {
     progressBar.style.removeProperty("display");
 
     unity.on("progress", (progression) => {
-        const downloadPercentage = Math.round(100 * progression / 0.3);
+        const downloadPercentage = Math.round(100 * progression / 0.9);
         progressBar.style.width = downloadPercentage + "%";
 
         if (progression < 0.9) {
@@ -59,7 +62,6 @@ function main() {
         spinner.style.display = "none";
         progressBar.style.display = "none";
 
-        let error = document.getElementById("error");
         error.innerText = "Unable to load the game. Please try again later.";
     });
 }

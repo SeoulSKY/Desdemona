@@ -2,7 +2,7 @@
 
 > Powerful Othello AI developed with Rust, Unity3D, WebGL, and Node.js
 
-[Click here to play!](https://desdemona.seoulsky.org)
+[Click here to play!](https://desdemona.seoulsky.org) (Using Chrome browser is recommended)
 
 <https://github.com/SeoulSKY/Desdemona/assets/48105703/60d35a72-98dc-4799-ad6d-17564029e0b4>
 
@@ -49,16 +49,11 @@ docker-compose pull && docker-compose up
 
 - When the `web-server` is running, visit [here](http://localhost:8080) to play!
 
-## How to Build and Run (Option 2)
+## How to Build Docker Images and Run (Option 2)
 
-- Install [Docker](https://www.docker.com/get-started), [Docker-compose](https://docs.docker.com/compose/install/), [Node.js](https://nodejs.org/en) and [Unity3D](https://unity.com/download)
-- Open the folder `desdemona` in Unity3D and close it. This will create the necessary files to build.
-- Change the directory into the folder `web-server` and run the following commands:
+This option builds the docker images and runs them with released Unity3D builds.
 
-```shell
-npm install
-npm run build-unity
-```
+- Install [Docker](https://www.docker.com/get-started) and [Docker-compose](https://docs.docker.com/compose/install/)
 
 - To run the app, use the following command from the folder where `docker-compose-dev.yml` is located:
 
@@ -67,6 +62,24 @@ docker-compose -f docker-compose-dev.yml up --build
 ```
 
 - When the `web-server` is running, visit [here](http://localhost:8080) to play!
+
+## How to Build Everything and Run (Option 3)
+
+- Install [Rust](https://www.rust-lang.org/tools/install), [Node.js](https://nodejs.org/en) and [Unity3D](https://unity.com/download)
+
+- Change the directory into the folder `ai-server` and run the following commands:
+
+```shell
+cargo run
+```
+
+- In a separate terminal, change the directory into the folder `web-server` and run the following commands:
+
+```shell
+npm install
+npm run build-unity
+npm run dev
+```
 
 ## Architecture
 
