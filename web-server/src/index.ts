@@ -12,7 +12,7 @@ const pipeline = util.promisify(stream.pipeline);
 
 const IS_PRODUCTION = process.env.PRODUCTION !== undefined;
 const IS_DOCKER = process.env.DOCKER !== undefined;
-const AI_SERVER_HOST = "http://localhost:8000/api";
+const AI_SERVER_HOST = IS_PRODUCTION ? "http://ai-server:8080/api" : "http://localhost:8000/api";
 const HOST = "0.0.0.0";
 const PORT = 8080;
 const RETRY_INTERVAL = duration({second: 5});
@@ -54,8 +54,8 @@ if (require.main === module) {
         if (IS_DOCKER) {
             latestTag = (await fetchLatestTag()) ?? process.exit(1);
 
-            // run for every minute
-            cron.schedule("* * * * *", async () => {
+            // run for every 5 minute
+            cron.schedule("*/5 * * * *", async () => {
                 latestTag = await fetchLatestTag();
             });
 
