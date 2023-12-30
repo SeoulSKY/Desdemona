@@ -4,7 +4,7 @@
 
 [Click here to play!](https://desdemona.seoulsky.org)
 
-https://github.com/SeoulSKY/Desdemona/assets/48105703/60d35a72-98dc-4799-ad6d-17564029e0b4
+<https://github.com/SeoulSKY/Desdemona/assets/48105703/60d35a72-98dc-4799-ad6d-17564029e0b4>
 
 ## Game Overview
 
@@ -28,39 +28,45 @@ https://github.com/SeoulSKY/Desdemona/assets/48105703/60d35a72-98dc-4799-ad6d-17
 
 <img style="width: 720px;" src="https://github.com/SeoulSKY/Desdemona/assets/48105703/2dd2edde-36f9-4b68-86f1-8cb62cfa5951"></img>
 
-
 ## How to Play
-* Move the player with `W`, `A`, `S`, and `D` keys on the keyboard
-* Jump with `Space`
-* Sprint with `Shift` holding
-* Open Settings with `Q`
-* Look around with the `mouse`
-* Place a disk with `Left-click`
-* Zoom in with `Right-click`
+
+- Move the player with `W`, `A`, `S`, and `D` keys on the keyboard
+- Jump with `Space`
+- Sprint with `Shift` holding
+- Open Settings with `Q`
+- Look around with the `mouse`
+- Place a disk with `Left-click`
+- Zoom in with `Right-click`
 
 ## How to Run (Option 1)
 
-* Install [Docker](https://www.docker.com/get-started) and [Docker-compose](https://docs.docker.com/compose/install/)
-* Run the following command:
+- Install [Docker](https://www.docker.com/get-started) and [Docker-compose](https://docs.docker.com/compose/install/)
+- Run the following command:
+
+```shell
+docker-compose up --pull
 ```
-docker-compose up --build
-```
-* When the `web-server` is running, visit [here](HTTP://localhost:8080) to play!
+
+- When the `web-server` is running, visit [here](http://localhost:8080) to play!
 
 ## How to Build and Run (Option 2)
 
-* Install [Docker](https://www.docker.com/get-started),  [Docker-compose](https://docs.docker.com/compose/install/), [Node.js](https://nodejs.org/en) and [Unity3D](https://unity.com/download)
-* Open the folder `desdemona` in Unity3D and close it. This will create the necessary files to build.
-* Change the directory into the folder `web-server` and run the following commands:
-```
+- Install [Docker](https://www.docker.com/get-started), [Docker-compose](https://docs.docker.com/compose/install/), [Node.js](https://nodejs.org/en) and [Unity3D](https://unity.com/download)
+- Open the folder `desdemona` in Unity3D and close it. This will create the necessary files to build.
+- Change the directory into the folder `web-server` and run the following commands:
+
+```shell
 npm install
 npm run build-unity
 ```
-* To run the app, use the following command from the folder where `docker-compose-dev.yml` is located:
-```
+
+- To run the app, use the following command from the folder where `docker-compose-dev.yml` is located:
+
+```shell
 docker-compose -f docker-compose-dev.yml up --build
 ```
-* When the `web-server` is running, visit [here](http://localhost:8080) to play!
+
+- When the `web-server` is running, visit [here](http://localhost:8080) to play!
 
 ## Architecture
 
