@@ -85,6 +85,12 @@ namespace Play
 
         private void Update()
         {
+            if (!_isPaused && !Application.isFocused)
+            {
+                OnPaused();
+                return;
+            }
+
             if (!_canPause || !Input.GetKeyDown(KeyCode.Q))
             {
                 return;

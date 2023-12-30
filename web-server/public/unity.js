@@ -49,7 +49,9 @@ function main() {
         spinner.style.display = "none";
         progressBar.style.display = "none";
 
-        document.getElementById("unity-canvas").style.display = "block";
+        let canvas = document.getElementById("unity-canvas");
+        canvas.style.display = "block"
+        canvas.focus();
     });
 
     unity.on("error", (message) => {

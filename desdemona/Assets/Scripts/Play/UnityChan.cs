@@ -42,6 +42,8 @@ namespace Play
         private int _idleStateHash;
         private int[] _boringStateHashes;
 
+        private Vector3 _startPosition;
+
         private Board _board;
         private bool IsIdle
         {
@@ -67,6 +69,8 @@ namespace Play
                 Animator.StringToHash("Boring"),
                 Animator.StringToHash("Boring 1"),
             };
+
+            _startPosition = transform.localPosition;
 
             _board = FindObjectOfType<Board>(true);
             
@@ -133,6 +137,8 @@ namespace Play
             _audioSource.Stop();
             var choice = Random.Range(0, spawningAudio.Length);
             _audioSource.PlayOneShot(spawningAudio[choice]);
+            
+            transform.localPosition = _startPosition;
         }
 
         private UniTask OnGameOver(Player? winner)

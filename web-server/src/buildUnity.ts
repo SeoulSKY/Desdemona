@@ -5,7 +5,7 @@ import moment, {duration} from "moment";
 
 const UNITY_PROJECT_PATH = path.join(PROJECT_ROOT_PATH, "..", "desdemona");
 const BUILD_PATH = path.join(UNITY_PROJECT_PATH, "Builds", "WebGL");
-const UNITY_VERSION = "2022.3.7f1";
+const UNITY_VERSION = "2022.3.16f1";
 
 
 function execAsync(command: string) {
@@ -36,7 +36,7 @@ export async function build() {
 
     logger.info("Building Unity project...")
     let start = moment();
-    await execAsync(`${unityPath} -projectPath ${UNITY_PROJECT_PATH} -logFile ${path.join("logs", "build.log")} -executeMethod Commands.Builder.Build -quit -batchmode -nographics`);
+    await execAsync(`${unityPath} -projectPath ${UNITY_PROJECT_PATH} -logFile ${path.join("logs", "build.log")} -executeMethod Commands.Builder.Build -quit`);
     let end = moment();
     logger.info(`Finished building in ${duration(end.diff(start)).humanize()}`)
 
