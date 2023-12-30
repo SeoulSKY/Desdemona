@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY . .
 
+ENV DOCKER=1
+
 RUN npm install
 
 EXPOSE 8080

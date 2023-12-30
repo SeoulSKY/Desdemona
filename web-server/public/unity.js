@@ -59,7 +59,8 @@ function main() {
         spinner.style.display = "none";
         progressBar.style.display = "none";
 
-        document.getElementById("error").innerText = "Unable to load the game. Please try again later.";
+        let error = document.getElementById("error");
+        error.innerText = "Unable to load the game. Please try again later.";
     });
 }
 
