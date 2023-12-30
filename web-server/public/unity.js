@@ -1,4 +1,4 @@
-async function main() {
+function main() {
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         alert("Mobile devices are not supported. Please use a desktop.");
         return;
@@ -44,16 +44,12 @@ async function main() {
     });
 
     unity.on("error", (message) => {
+        console.error(message);
         spinner.style.display = "none";
         progressBar.style.display = "none";
 
-        document.getElementById("error").innerText = message;
+        document.getElementById("error").innerText = "Unable to load the game. Please try again later.";
     });
 }
 
-try {
-    main();
-} catch (e) {
-    console.error(e);
-    alert("Unable to load the game. Please try again later.");
-}
+main();

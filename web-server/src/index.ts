@@ -3,8 +3,10 @@ import pino from "pino";
 import path from "path";
 import fs from "fs";
 import { duration } from "moment";
-import { createProxyMiddleware } from "http-proxy-middleware";
+import stream from "stream";
+import util from "util";
 
+const pipeline = util.promisify(stream.pipeline);
 
 const IS_PRODUCTION = process.env.PRODUCTION !== undefined;
 const AI_SERVER_HOST = IS_PRODUCTION ? "http://ai-server:8000/api" : "http://localhost:8000/api";
@@ -22,8 +24,6 @@ export const PROJECT_ROOT_PATH = path.dirname(require.main?.path as string);
 
 
 const app = express();
-
-app.use(express.static("public"));
 
 if (require.main === module) {
     (async () => {
@@ -44,19 +44,32 @@ if (require.main === module) {
 
             let json = await response.json();
 
-            app.use(
-                "/Build",
-                createProxyMiddleware({
-                    target: `https://github.com/SeoulSKY/Desdemona/releases/download/${json.tag_name}`,
-                    changeOrigin: true,
-                    onProxyRes: (_proxyRes, _req, res) => {
-                        res.setHeader("Access-Control-Allow-Origin", "*");
-                    },
-                    pathRewrite: {
-                        "^/Build": "",
-                    },
-                })
-            );
+            app.get("/Build/:filename", async (req, res) => {
+                let response = await fetch(
+                    `https://github.com/SeoulSKY/Desdemona/releases/download/${json.tag_name}/${req.params.filename}`
+                );
+
+                if (!response.ok) {
+                    res.status(response.status).send(await response.text());
+                    return;
+                }
+
+                res.setHeader("Access-Control-Allow-Origin", "*");
+                res.setHeader("Content-Type", response.headers.get("Content-Type")!);
+                res.setHeader("Content-Length", response.headers.get("Content-Length")!);
+                if (req.params.filename.endsWith(".unityweb")) {
+                    res.setHeader("Content-Encoding", "gzip");
+                }
+
+                await pipeline(response.body as any, res).catch((e) => {
+                    if (res.closed) {
+                        return;
+                    }
+
+                    logger.error(e);
+                    res.status(500).send("Internal Server Error");
+                });
+            });
 
             while (true) {
                 try {
@@ -70,6 +83,8 @@ if (require.main === module) {
                 }
             }
         }
+
+        app.use(express.static("public"));
 
         app.listen(PORT, HOST, () => {
           logger.info("Web server is listening http://%s:%s", HOST, PORT);
