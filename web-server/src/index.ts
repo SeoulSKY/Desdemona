@@ -32,7 +32,7 @@ if (require.main === module) {
             process.exit(1);
         }
 
-        if (IS_PRODUCTION) {
+        if (true) {
             let response = await fetch(
                 "https://api.github.com/repos/seoulsky/desdemona/releases/latest"
             );
@@ -57,8 +57,15 @@ if (require.main === module) {
                 res.setHeader("Access-Control-Allow-Origin", "*");
                 res.setHeader("Content-Type", response.headers.get("Content-Type")!);
                 res.setHeader("Content-Length", response.headers.get("Content-Length")!);
+
                 if (req.params.filename.endsWith(".unityweb")) {
                     res.setHeader("Content-Encoding", "gzip");
+                }
+
+                if (req.params.filename.includes(".wasm")) {
+                    res.setHeader("Content-Type", "application/wasm");
+                } else if (req.params.filename.includes(".js")) {
+                    res.setHeader("Content-Type", "application/javascript");
                 }
 
                 await pipeline(response.body as any, res).catch((e) => {
@@ -71,7 +78,7 @@ if (require.main === module) {
                 });
             });
 
-            while (true) {
+            while (false) {
                 try {
                     await fetch(AI_SERVER_HOST);
                     break;

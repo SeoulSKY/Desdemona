@@ -26,6 +26,7 @@ function main() {
     });
 
     let spinner = document.getElementById("spinner");
+    let spinnerText = document.getElementById("spinner-text");
     let progressBar = document.getElementById("progress-bar");
 
     // make them visible
@@ -33,7 +34,15 @@ function main() {
     progressBar.style.removeProperty("display");
 
     unity.on("progress", (progression) => {
-        progressBar.style.width = 100 * progression + "%";
+        const downloadPercentage = Math.round(100 * progression / 0.3);
+        progressBar.style.width = downloadPercentage + "%";
+
+        if (progression < 0.9) {
+            spinnerText.innerText = `Downloading data... ${downloadPercentage}%`;
+        } else {
+            progressBar.style.width = "100%";
+            spinnerText.innerText = "Loading...";
+        }
     });
 
     unity.on("mounted", () => {
