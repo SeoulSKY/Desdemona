@@ -44,7 +44,7 @@
 - Run the following command:
 
 ```shell
-docker-compose up --pull
+docker-compose pull && docker-compose up
 ```
 
 - When the `web-server` is running, visit [here](http://localhost:8080) to play!
