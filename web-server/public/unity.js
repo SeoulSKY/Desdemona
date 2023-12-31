@@ -32,7 +32,7 @@ function main() {
             if (!init.headers) {
                 init.headers = new Headers();
             }
-            init.headers.append("Accept-Encoding", "gzip, br");
+            init.headers.append("Accept-Encoding", "gzip");
         }
 
         return originalFetch.apply(this, arguments);
