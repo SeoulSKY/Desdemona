@@ -37,7 +37,7 @@ function main() {
     progressBar.style.removeProperty("display");
 
     unity.on("progress", (progression) => {
-        const downloadPercentage = Math.round(100 * progression / 0.9);
+        const downloadPercentage = Math.round(100 * progression / 0.3);
         progressBar.style.width = downloadPercentage + "%";
 
         if (progression < 0.9) {
