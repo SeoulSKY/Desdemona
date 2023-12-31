@@ -61,7 +61,7 @@ This option builds the docker images and runs them with released Unity3D builds.
 docker-compose -f docker-compose-dev.yml up --build
 ```
 
-- When the `web-server` is running, visit [here](http://localhost:8080) to play!
+- When both the `ai-server` and `web-server` are running, visit [here](http://localhost:8080) to play!
 
 ## How to Build Everything and Run (Option 3)
 
@@ -80,6 +80,8 @@ npm install
 npm run build-unity
 npm run dev
 ```
+
+- When both the `ai-server` and `web-server` are running, visit [here](http://localhost:8080) to play!
 
 ## Architecture
 
