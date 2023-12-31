@@ -81,6 +81,8 @@ if (require.main === module) {
                     response.headers.get("Content-Length")!
                 );
 
+                res.setHeader("Cache-Control", "no-transform");
+
                 if (req.params.filename.endsWith(".unityweb")) {
                     res.setHeader("Content-Encoding", "gzip");
                 }
