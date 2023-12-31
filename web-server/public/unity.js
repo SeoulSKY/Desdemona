@@ -1,7 +1,6 @@
 function main() {
     let error = document.getElementById("error");
 
-
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         error.innerText = "Mobile devices are not supported. Please use a desktop.";
         return;
@@ -18,6 +17,27 @@ function main() {
 
     document.body.style.textAlign = "left";
 
+    const spinner = document.getElementById("spinner");
+    const spinnerText = document.getElementById("spinner-text");
+    const progressBar = document.getElementById("progress-bar");
+
+    // make them visible
+    spinner.style.removeProperty("display");
+    progressBar.style.removeProperty("display");
+
+    // Add headers to all subsequent GET requests using fetch
+    const originalFetch = window.fetch;
+    window.fetch = function(input, init) {
+        if (init && init.method && init.method.toUpperCase() === "GET") {
+            if (!init.headers) {
+                init.headers = new Headers();
+            }
+            init.headers.append("Accept-Encoding", "gzip, br");
+        }
+
+        return originalFetch.apply(this, arguments);
+    };
+
     let unity = new UnityWebgl("#unity-canvas", {
         loaderUrl: "Build/WebGL.loader.js",
         dataUrl: "Build/WebGL.data.unityweb",
@@ -27,14 +47,6 @@ function main() {
         companyName: "SeoulSKY",
         productName: "Desdemona",
     });
-
-    let spinner = document.getElementById("spinner");
-    let spinnerText = document.getElementById("spinner-text");
-    let progressBar = document.getElementById("progress-bar");
-
-    // make them visible
-    spinner.style.removeProperty("display");
-    progressBar.style.removeProperty("display");
 
     unity.on("progress", (progression) => {
         const downloadPercentage = Math.round(100 * progression / 0.3);
