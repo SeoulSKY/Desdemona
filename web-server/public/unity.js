@@ -27,15 +27,24 @@ function main() {
 
     // Add headers to all subsequent GET requests using fetch
     const originalFetch = window.fetch;
-    window.fetch = function(input, init) {
+    window.fetch = function (input, init) {
+        // Create a new Request object with the desired headers
+        const request = new Request(input, {
+            method: init.method,
+            headers: new Headers(init.headers || {}),
+            mode: init.mode,
+            credentials: init.credentials,
+            cache: init.cache,
+            redirect: init.redirect,
+            referrer: init.referrer,
+            integrity: init.integrity,
+        });
+
         if (init && init.method && init.method.toUpperCase() === "GET") {
-            if (!init.headers) {
-                init.headers = new Headers();
-            }
-            init.headers.append("Accept-Encoding", "gzip");
+            request.headers.set("Accept-Encoding", "gzip");
         }
 
-        return originalFetch.apply(this, arguments);
+        return originalFetch.apply(this, request);
     };
 
     let unity = new UnityWebgl("#unity-canvas", {
