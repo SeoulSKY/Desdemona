@@ -40,7 +40,7 @@ function main() {
         const downloadPercentage = Math.round(100 * progression / 0.3);
         progressBar.style.width = downloadPercentage + "%";
 
-        if (progression < 0.9) {
+        if (downloadPercentage < 100) {
             spinnerText.innerText = `Downloading data... ${downloadPercentage}%`;
         } else {
             progressBar.style.width = "100%";
