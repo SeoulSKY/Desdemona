@@ -5,6 +5,7 @@
 **/.vscode
 **/.fleet
 **/.trunk
+**/.vscode
 
 # Ignore temporaries from GameCI
 **/[Aa]rtifacts/
