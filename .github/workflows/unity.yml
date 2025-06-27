@@ -11,91 +11,90 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
 
-    - name: Free Disk Space (Ubuntu)
-      uses: jlumbroso/free-disk-space@main
-      with:
-        # this might remove tools that are actually needed,
-        # if set to "true" but frees about 6 GB
-        tool-cache: false
-        
-        # all of these default to true, but feel free to set to
-        # "false" if necessary for your workflow
-        android: true
-        dotnet: false
-        haskell: true
-        large-packages: true
-        docker-images: true
-        swap-storage: true
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: false
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
 
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Cache Unity Dependencies
-      uses: actions/cache@v2
-      with:
-        path: ./desdemona/Library
-        key: Library-desdemona-WebGL
-        restore-keys: |
-          Library-desdemona-
-          Library-
+      - name: Cache Unity Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ./desdemona/Library
+          key: Library-desdemona-WebGL
+          restore-keys: |
+            Library-desdemona-
+            Library-
 
-    - name: Build Unity project
-      uses: game-ci/unity-builder@v4
-      env:
-        UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-        UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-        UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-      with:
-        targetPlatform: WebGL
-        projectPath: desdemona
-        buildMethod: Commands.Builder.Build
+      - name: Build Unity project
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: WebGL
+          projectPath: desdemona
+          buildMethod: Commands.Builder.Build
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: ${{ github.ref }}
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
 
-    - name: Upload WebGL data
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: desdemona/Builds/WebGL/Build/WebGL.data.unityweb
-        asset_name: WebGL.data.unityweb
-        asset_content_type: application/gzip
+      - name: Upload WebGL data
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: desdemona/Builds/WebGL/Build/WebGL.data.unityweb
+          asset_name: WebGL.data.unityweb
+          asset_content_type: application/gzip
 
-    - name: Upload WebGL framework
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: desdemona/Builds/WebGL/Build/WebGL.framework.js.unityweb
-        asset_name: WebGL.framework.js.unityweb
-        asset_content_type: application/gzip
+      - name: Upload WebGL framework
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: desdemona/Builds/WebGL/Build/WebGL.framework.js.unityweb
+          asset_name: WebGL.framework.js.unityweb
+          asset_content_type: application/gzip
 
-    - name: Upload WebGL wasm
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: desdemona/Builds/WebGL/Build/WebGL.wasm.unityweb
-        asset_name: WebGL.wasm.unityweb
-        asset_content_type: application/gzip
+      - name: Upload WebGL wasm
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: desdemona/Builds/WebGL/Build/WebGL.wasm.unityweb
+          asset_name: WebGL.wasm.unityweb
+          asset_content_type: application/gzip
 
-    - name: Upload Unity loader script
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: desdemona/Builds/WebGL/Build/WebGL.loader.js
-        asset_name: WebGL.loader.js
-        asset_content_type: application/javascript
+      - name: Upload Unity loader script
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: desdemona/Builds/WebGL/Build/WebGL.loader.js
+          asset_name: WebGL.loader.js
+          asset_content_type: application/javascript
