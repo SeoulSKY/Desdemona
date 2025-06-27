@@ -7,7 +7,6 @@ on:
 
 jobs:
   unity:
-    environment: desdemona
     runs-on: ubuntu-latest
 
     steps:
