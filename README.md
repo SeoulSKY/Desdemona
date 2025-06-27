@@ -44,7 +44,7 @@
 - Run the following command:
 
 ```shell
-docker-compose pull && docker-compose up
+docker compose pull && docker compose up -d
 ```
 
 - When the `web-server` is running, visit [here](http://localhost:8080) to play!
@@ -58,7 +58,7 @@ This option builds the docker images and runs them with released Unity3D builds.
 - To run the app, use the following command from the folder where `docker-compose-dev.yml` is located:
 
 ```shell
-docker-compose -f docker-compose-dev.yml up --build
+docker compose docker-compose-dev.yml up --build -d
 ```
 
 - When both the `ai-server` and `web-server` are running, visit [here](http://localhost:8080) to play!
