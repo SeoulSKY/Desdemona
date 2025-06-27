@@ -9,6 +9,7 @@ services:
       - 8000:8000
     volumes:
       - ./ai-server:/app
+
   web-server:
     image: ghcr.io/seoulsky/desdemona-web:latest
     container_name: web-server
